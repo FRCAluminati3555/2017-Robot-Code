@@ -48,18 +48,37 @@ public class GearHandler implements SubSystem{
 	
 	/*
 	 * Method to set the position of where the CANTalon needs to go
-	 * this takes in a double that represents where the gear handler must go
-	 * this method takes this passed in variable, and sets the field to it
+	 * this takes in a Gear Handler position
+	 * this will take the passed in position and assign the field toPosition to the
+	 * corresponding value
 	 */
-	public void setPosistion(double pos){
-		toPosition = pos;
+	public void setToPosistion(GearHandlerPositions pos){
+		if(pos == GearHandlerPositions.UPPER_POS){
+			toPosition = 6;
+		}
+		else if(pos == GearHandlerPositions.MIDDLE_POS){
+			toPosition = 3;
+		}
+		else if(pos == GearHandlerPositions.DOWN_POS){
+			toPosition = 0;
+		}
 	}
 	
 	/*
 	 * This is the update method from the implemented interface
+	 * this wil listen for 3 buttons getting pressed, and call the setToPosition to tell where the gearHandler needs to go 
 	 * this will make the CANTalon go to the position of the field
 	 */
 	public void update(){
-		gearHandlerCANTalon.setPosition(toPosition);
+		if(joyOP.getRawButton(8)){
+			setToPosistion(GearHandlerPositions.UPPER_POS);
+		}
+		else if(joyOP.getRawButton(10)){
+			setToPosistion(GearHandlerPositions.MIDDLE_POS);
+		}
+		else if(joyOP.getRawButton(10)){	
+			setToPosistion(GearHandlerPositions.DOWN_POS);
+		}
+		gearHandlerCANTalon.set(toPosition);
 	}
 }

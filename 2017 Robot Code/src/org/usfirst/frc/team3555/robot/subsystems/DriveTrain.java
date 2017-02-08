@@ -10,10 +10,29 @@ public class DriveTrain implements SubSystem{
 	 */
 	private Joystick joyLeft, joyRight;
 	
+	/*
+	 * represents the deadzone on the joysticks to prevent the motors from moving at .005%
+	 */
 	private double deadzone;
-	private DriveModes currentControlMode;
 	
+	/*
+	 * represents whether or not the encoders are taken into account in the drive train controls
+	 * aka controlled by RPM (uses encoders) or just percentage (does not use encoders)
+	 */
+	private boolean encoderDrive;
+	
+	/*
+	 * allows driver to reverse controls
+	 */
+	private int invertedDrive;
+
+	/*
+	 * CANTalon fields that represent the CANTalons on the drive train
+	 * the naming convention is based on the fact that the two sides both have 2 speed controllers that control 1 shaft
+	 */
 	private CANTalon left1, left2, right1, right2;
+	
+	private double maxRPM;
 	
 	/*
 	 * an enumeration that contains the modes of the drive train
@@ -23,10 +42,15 @@ public class DriveTrain implements SubSystem{
 	}
 	
 	/*
+	 * represents the current mode that the drive 
+	 */
+	private DriveModes currentControlMode;
+	
+	/*
 	 * contructor for the Drive Train class
 	 */
 	public DriveTrain(double deadzone, DriveModes startingControlMode, Joystick joyLeft, Joystick joyRight,
-			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2){
+			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2, double maxRPM){
 		
 		/*
 		 * sets the fields of the class to the passed in parameters of the constructor
@@ -34,12 +58,17 @@ public class DriveTrain implements SubSystem{
 		this.deadzone = deadzone;
 		this.joyLeft = joyLeft;
 		this.joyRight = joyRight;
+		
 		currentControlMode = startingControlMode;
 		
 		this.left1 = left1;
 		this.left2 = left2;
 		this.right1 = right1;
 		this.right2 = right2;
+		
+		this.maxRPM = maxRPM;
+		
+		invertedDrive = 1;
 		
 		/**
 		 * the init of the CANTalons
@@ -106,8 +135,41 @@ public class DriveTrain implements SubSystem{
 	 * hence why the method only takes in a DriveMode(the enum at the top)
 	 * this sets the current control mode to the passed in control mode
 	 */
-	public void setControlMode(DriveModes controlMode){
+	public void setDriveMode(DriveModes controlMode){
 		currentControlMode = controlMode;
+	}
+	
+	/*
+	 * this is a method that can invert the controls of the robot
+	 * this would be used when the robot faces towards the driver
+	 */
+	public void invertControls(boolean invert){
+		if(invert)
+			invertedDrive = -1;
+		else
+			invertedDrive = 1;
+	}
+	
+	/*
+	 * this is a method that will allow the user to change whether or not the encoders are used in the drive controls
+	 */
+	public void useEncoderForDrive(boolean use){
+		encoderDrive = use;
+		
+		if(use){
+			left1.changeControlMode(CANTalon.TalonControlMode.Speed);
+			right1.changeControlMode(CANTalon.TalonControlMode.Speed);
+			
+			left1.enableControl();
+			right1.enableControl();
+		}
+		else{
+			left1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+			right1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+			
+			left1.enableControl();
+			right1.enableControl();
+		}
 	}
 	
 	/*
@@ -135,8 +197,8 @@ public class DriveTrain implements SubSystem{
     		rightSpeed = -joyRight.getRawAxis(1) - joyRight.getRawAxis(0);
     	}
     	
-    	left1.set(leftSpeed); // TODO, get the top speed of the motors on the drive train
-    	right1.set(rightSpeed);
+    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
+    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
     	left2.set(left1.getDeviceID());
     	right2.set(right1.getDeviceID());
 	}

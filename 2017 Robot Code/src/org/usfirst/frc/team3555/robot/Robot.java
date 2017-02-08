@@ -70,7 +70,7 @@ public class Robot extends SampleRobot {
 	 * in this case, the 4 made as a field are passed in
 	 */
 	private DriveTrain drive = new DriveTrain(.05, DriveModes.ARCADE_DRIVE, joyLeft, joyRight, 
-								driveCANTalonLeft1, driveCANTalonLeft2, driveCANTalonRight1, driveCANTalonRight2);
+								driveCANTalonLeft1, driveCANTalonLeft2, driveCANTalonRight1, driveCANTalonRight2, 0);
 	
 	/*
 	 * this creates an object of the gear handler class
