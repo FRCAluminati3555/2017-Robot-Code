@@ -31,7 +31,6 @@ public class GearHandler implements SubSystem{
 	 * sets it to have an analog potentiometer
 	 * sets the talon to position mode
 	 * sets the pid
-	 * configurates the pot turns(see comment next to it)
 	 * enables control to the CANTalon
 	 */
 	public GearHandler(Joystick joyOP, CANTalon gearHandlerCANTalon){
@@ -40,9 +39,7 @@ public class GearHandler implements SubSystem{
 		
 		gearHandlerCANTalon.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
 		gearHandlerCANTalon.changeControlMode(CANTalon.TalonControlMode.Position);
-		gearHandlerCANTalon.setPID(0, 0, 0);//TODO, test for these constants
-		gearHandlerCANTalon.configPotentiometerTurns(1);//this takes in the amount of turns that the pot turns per rev of the motor
-														//TODO test for the actual value
+		gearHandlerCANTalon.setPID(12.8, 0, 0);
 		gearHandlerCANTalon.enableControl();
 	}
 	
@@ -54,13 +51,13 @@ public class GearHandler implements SubSystem{
 	 */
 	public void setToPosistion(GearHandlerPositions pos){
 		if(pos == GearHandlerPositions.UPPER_POS){
-			toPosition = 6;
+			toPosition = 460;
 		}
 		else if(pos == GearHandlerPositions.MIDDLE_POS){
-			toPosition = 3;
+			toPosition = 600;
 		}
 		else if(pos == GearHandlerPositions.DOWN_POS){
-			toPosition = 0;
+			toPosition = 720;
 		}
 	}
 	
@@ -76,7 +73,7 @@ public class GearHandler implements SubSystem{
 		else if(joyOP.getRawButton(10)){
 			setToPosistion(GearHandlerPositions.MIDDLE_POS);
 		}
-		else if(joyOP.getRawButton(10)){	
+		else if(joyOP.getRawButton(12)){	
 			setToPosistion(GearHandlerPositions.DOWN_POS);
 		}
 		gearHandlerCANTalon.set(toPosition);

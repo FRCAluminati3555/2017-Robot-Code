@@ -3,6 +3,7 @@ package org.usfirst.frc.team3555.robot.subsystems;
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain implements SubSystem{
 	/*
@@ -16,6 +17,11 @@ public class DriveTrain implements SubSystem{
 	private double deadzone;
 	
 	/*
+	 * pid constants for the drive train CANTalons
+	 */
+	private double p = .65,i = 0,d = .1;
+	
+	/*
 	 * represents whether or not the encoders are taken into account in the drive train controls
 	 * aka controlled by RPM (uses encoders) or just percentage (does not use encoders)
 	 */
@@ -23,6 +29,9 @@ public class DriveTrain implements SubSystem{
 	
 	/*
 	 * allows driver to reverse controls
+	 * this is done by either having this variable being negative 1 or positive 1, then is multiplied to the 
+	 * final speed output to either keep it the way it was, or multiply by -1
+	 * to invert the controls
 	 */
 	private int invertedDrive;
 
@@ -32,6 +41,9 @@ public class DriveTrain implements SubSystem{
 	 */
 	private CANTalon left1, left2, right1, right2;
 	
+	/*
+	 * represents the max rpm of the motors on the robot
+	 */
 	private double maxRPM;
 	
 	/*
@@ -50,7 +62,7 @@ public class DriveTrain implements SubSystem{
 	 * contructor for the Drive Train class
 	 */
 	public DriveTrain(double deadzone, DriveModes startingControlMode, Joystick joyLeft, Joystick joyRight,
-			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2, double maxRPM){
+			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2){
 		
 		/*
 		 * sets the fields of the class to the passed in parameters of the constructor
@@ -66,9 +78,12 @@ public class DriveTrain implements SubSystem{
 		this.right1 = right1;
 		this.right2 = right2;
 		
-		this.maxRPM = maxRPM;
+		maxRPM = 196;
 		
-		invertedDrive = 1;
+		/*
+		 * -1 is the standard oriantation of the robot encoders
+		 */
+		invertedDrive = -1;
 		
 		/**
 		 * the init of the CANTalons
@@ -78,8 +93,8 @@ public class DriveTrain implements SubSystem{
 		 * starts off by setting one controller of each side to speed mode
 		 * that way they are controlled by rpm rather than a percentage of power available 
 		 */
-		left1.changeControlMode(CANTalon.TalonControlMode.Speed);
-		right1.changeControlMode(CANTalon.TalonControlMode.Speed);
+		left1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+		right1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 		
 		/*
 		 * sets these controllers to have a Quad Encoder to read from
@@ -90,8 +105,8 @@ public class DriveTrain implements SubSystem{
 		/*
 		 * sets the amount of pulses, from the encoder, that equates to one revolution
 		 */
-		left1.configEncoderCodesPerRev(10);
-		right1.configEncoderCodesPerRev(10);
+		left1.configEncoderCodesPerRev(360);
+		right1.configEncoderCodesPerRev(360);
 		
 		/*
 		 * sets the PID of the two speed controllers
@@ -99,8 +114,11 @@ public class DriveTrain implements SubSystem{
 		 * it's basically constatns that the controller will use to either speed itself up or lower itself
 		 * to keep at a constant rate or position
 		 */
-		left1.setPID(0, 0, 0); //TODO test for these constants!
-		right1.setPID(0, 0, 0);
+		left1.setPID(p, i, d); //TODO test for these constants!
+		right1.setPID(p, i, d);
+		
+		left1.reverseSensor(true);
+		right1.reverseSensor(true);
 		
 		/*
 		 * this sets the other two CANTalons to follower mode 
@@ -108,7 +126,7 @@ public class DriveTrain implements SubSystem{
 		 */
 		left2.changeControlMode(CANTalon.TalonControlMode.Follower);
 		right2.changeControlMode(CANTalon.TalonControlMode.Follower);
-		
+
 		/*
 		 * this will enable the speed controllers to move
 		 */
@@ -116,6 +134,11 @@ public class DriveTrain implements SubSystem{
 		left2.enableControl();
 		right1.enableControl();
 		right2.enableControl();
+		
+		left1.enable();
+		left2.enable();
+		right1.enable();
+		right2.enable();
 	}
 	
 	/*
@@ -123,11 +146,36 @@ public class DriveTrain implements SubSystem{
 	 * this is the method that will check which drive mode that is chosen, 
 	 * then it will do the math of the corresponding drive mode, and use that to control the robot
 	 */
+	double tempRightPos;
+	double tempRightNeg;
+	double tempLeftPos;
+	double tempLeftNeg;
+	
 	public void update(){
 		if(currentControlMode == DriveModes.ARCADE_DRIVE)
 			arcadeDrive();
 		else if(currentControlMode == DriveModes.TANK_DRIVE)
 			tankDrive();
+		
+		if(right1.getSpeed() > tempRightPos)
+			tempRightPos = right1.getSpeed();
+		if(right1.getSpeed() < tempRightNeg)
+			tempRightNeg = right1.getSpeed();
+		
+		if(left1.getSpeed() > tempLeftPos)
+			tempLeftPos = left1.getSpeed();
+		if(left1.getSpeed() < tempLeftNeg)
+			tempLeftNeg = left1.getSpeed();
+		
+		SmartDashboard.putNumber("Max Left Neg: ", tempLeftNeg);
+		SmartDashboard.putNumber("Max Left Pos: ", tempLeftPos);
+		SmartDashboard.putNumber("Max Right Neg: ", tempRightNeg);
+		SmartDashboard.putNumber("Max Right Pos: ", tempRightPos);
+		
+		SmartDashboard.putNumber("Left Master: ", left1.get());
+		SmartDashboard.putNumber("Left Slave: ", left2.get());
+		SmartDashboard.putNumber("Right Slave: ", right2.get());
+		SmartDashboard.putNumber("Right Master: ", right1.get());
 	}
 	
 	/*
@@ -145,9 +193,9 @@ public class DriveTrain implements SubSystem{
 	 */
 	public void invertControls(boolean invert){
 		if(invert)
-			invertedDrive = -1;
-		else
 			invertedDrive = 1;
+		else
+			invertedDrive = -1;
 	}
 	
 	/*
@@ -160,12 +208,20 @@ public class DriveTrain implements SubSystem{
 			left1.changeControlMode(CANTalon.TalonControlMode.Speed);
 			right1.changeControlMode(CANTalon.TalonControlMode.Speed);
 			
+			left1.setPID(p, i, d);
+			right1.setPID(p, i, d);
+			
 			left1.enableControl();
 			right1.enableControl();
+			left1.enable();
+			right1.enable();
 		}
 		else{
 			left1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 			right1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+			
+//			left1.setPID(p, i, d);
+//			right1.setPID(p, i, d);
 			
 			left1.enableControl();
 			right1.enableControl();
@@ -197,6 +253,8 @@ public class DriveTrain implements SubSystem{
     		rightSpeed = -joyRight.getRawAxis(1) - joyRight.getRawAxis(0);
     	}
     	
+//    	left1.set(leftSpeed * maxRPM * invertedDrive);
+//    	right1.set(rightSpeed * maxRPM * invertedDrive);
     	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
     	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
     	left2.set(left1.getDeviceID());
@@ -220,8 +278,8 @@ public class DriveTrain implements SubSystem{
     		rightSpeed = -joyRight.getRawAxis(1);
     	}
     	
-    	left1.set(leftSpeed); // TODO, get the top speed of the motors on the drive train
-    	right1.set(rightSpeed);
+    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
+    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
     	left2.set(left1.getDeviceID());
     	right2.set(right1.getDeviceID());
     }
