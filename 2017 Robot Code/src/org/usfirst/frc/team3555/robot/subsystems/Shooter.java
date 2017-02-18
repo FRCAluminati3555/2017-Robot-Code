@@ -15,7 +15,7 @@ public class Shooter implements SubSystem{
 	
 	private Servo feader;
 	
-	private int feaderPositionHigh = 255, feaderPositionDown = 0;
+	private int feaderPositionUp = 255, feaderPositionDown = 0;
 	private double rpmHighGoal = 1000, rpmLowGoal = 500;
 	
 	/*
@@ -35,8 +35,8 @@ public class Shooter implements SubSystem{
 		this.feader = feader;
 		
 		shooterCANTalon.changeControlMode(CANTalon.TalonControlMode.Speed);
-		shooterCANTalon.setPID(0, 0, 0);//TODO test for these values!
 		shooterCANTalon.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+		shooterCANTalon.setPID(0, 0, 0);//TODO test for these values!
 		shooterCANTalon.configEncoderCodesPerRev(0);//TODO get this value
 		shooterCANTalon.enableControl();
 	}
@@ -45,10 +45,14 @@ public class Shooter implements SubSystem{
 	 * Update method implemented by the subsystem interface
 	 * need to figure out how the user will use the shooter
 	 */
-	public void update(){}
+	public void update(){
+		if(joyOP.getRawButton(0)){//TODO get this value
+		}
+	}
 
 	/*
 	 * method that will set the rpm of the shooter
+	 * and blocks the balls from entering the shooter
 	 */
 	public void setRPM(double rpm){
 		this.rpm = rpm;
@@ -57,8 +61,15 @@ public class Shooter implements SubSystem{
 		shooterCANTalon.set(rpm);
 	}
 	
-	public void shoot(){
-//		if(shooterCANTalon.getS)
+	/*
+	 * method that will spin up the motor, then start to shoot until the button stops
+	 */
+	public void shoot(double rpm){
+		setRPM(rpm);
+		
+		if(shooterCANTalon.getSpeed() > rpm-10){
+			feader.setRaw(feaderPositionUp);
+		}
 	}
 	
 	/*
