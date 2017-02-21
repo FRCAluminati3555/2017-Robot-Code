@@ -10,18 +10,19 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 
 /*
- * This was taken from the example programs (intermediate vision)
+ * This was taken from the example programs (intermediate vision) by WPI
  * and re-purposed for camera switching with a joystick
+ * Further research needs to be done to fully understand how this works
  */
 public class CameraSwitch {
 	Thread visionThread;
-	Joystick joy;
+	Joystick joyOP;
 
 	public CameraSwitch(Joystick joy) {
 		/*
 		 * makes the field joystick the passed in joystick
 		 */
-		this.joy = joy;
+		this.joyOP = joy;
 		
 		/*
 		 * this creates a new thread for the robot to run
@@ -32,7 +33,7 @@ public class CameraSwitch {
 			/*
 			 * create the cameras here
 			 */
-			AxisCamera cam0 = new AxisCamera("cam0", "169.254.78.174");
+			AxisCamera cam0 = new AxisCamera("cam0", "10.35.55.51");
 			UsbCamera cam1 = new UsbCamera("cam1", 0);
 			
 			/*
@@ -54,9 +55,9 @@ public class CameraSwitch {
 			while (!Thread.interrupted()) {
 				// Tell the CvSink to grab a frame from a camera and put it in the source mat.
 				// If there is an error notify the output.
-				if(joy.getRawButton(2))
+				if(joy.getRawButton(10))
 					cvSink = CameraServer.getInstance().getVideo(cam0);
-				if(joy.getRawButton(3))
+				if(joy.getRawButton(11))
 					cvSink = CameraServer.getInstance().getVideo(cam1);
 				
 				

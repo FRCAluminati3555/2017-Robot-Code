@@ -78,10 +78,10 @@ public class DriveTrain implements SubSystem{
 		this.right1 = right1;
 		this.right2 = right2;
 		
-		maxRPM = 196;
+		maxRPM = 5330;
 		
-		/*
-		 * -1 is the standard oriantation of the robot encoders
+		/* 
+		 * -1 is the standard orientation of the robot encoders
 		 */
 		invertedDrive = -1;
 		

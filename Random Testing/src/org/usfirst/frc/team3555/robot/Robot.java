@@ -26,10 +26,11 @@ public class Robot extends SampleRobot {
 		talon.setF(0);
 //		talon.setPID(12.8, 0, 0); // position mode on the gear handler
 //		talon.setPID(.6, .0001, .15); // this is for the position mode
-		talon.setPID(.2, .00062, 0); // this is for the speed mode
+		talon.setPID(.2, .00062, .03); // this is for the speed mode
 		
 		talon.reverseSensor(false);
 		talon.enableControl();
+		talon.set(4000);
 	}
 	
 	public void operatorControl() {
@@ -37,7 +38,7 @@ public class Robot extends SampleRobot {
 //			if(Math.abs(joy.getRawAxis(1)) > .1)
 //				talon.set(joy.getRawAxis(1));
 //			else
-				talon.set(3000);
+				
 //			if(joy.getRawButton(9))
 //				talon.set(460);
 //			if(joy.getRawButton(10))

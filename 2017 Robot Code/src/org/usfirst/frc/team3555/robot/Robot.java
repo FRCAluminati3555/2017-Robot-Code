@@ -6,11 +6,13 @@
 
 package org.usfirst.frc.team3555.robot;
 
+import org.usfirst.frc.team3555.robot.subsystems.Climber;
 import org.usfirst.frc.team3555.robot.subsystems.DriveTrain;
 import org.usfirst.frc.team3555.robot.subsystems.DriveTrain.DriveModes;
 import org.usfirst.frc.team3555.robot.subsystems.GearHandler;
 import org.usfirst.frc.team3555.robot.subsystems.Loader;
 import org.usfirst.frc.team3555.robot.subsystems.Shooter;
+import org.usfirst.frc.team3555.robot.vision.CameraSwitch;
 
 import com.ctre.CANTalon;
 
@@ -19,8 +21,13 @@ import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 public class Robot extends SampleRobot {
+	/*
+	 * represents the deadzone on all joysticks, so that the motors won't be told to move at 
+	 * minute speeds that just drain the motor, and aren't enough to actually move the motor
+	 */
 	private final double DEADZONE = .08;
 	
 	/* 
@@ -32,6 +39,10 @@ public class Robot extends SampleRobot {
 	private Joystick joyOP = new Joystick(0), joyLeft = new Joystick(1), joyRight = new Joystick(2);
 	
 	/*
+	 * this creates a CANTalon for the shooter
+	 */
+	private CANTalon shooterCANTalon = new CANTalon(0); //TODO get this device id
+	/*
 	 * These two blocks of code create 4 CANTalons, each taking a CAN Device ID number
 	 * this number can be found on the RoboRIO config dashboard
 	 * the spelling convention is based on the fact that the speed controllers don't have a specific 
@@ -39,28 +50,27 @@ public class Robot extends SampleRobot {
 	 * this is because they both just go into the same gearbox
 	 * the 2s follow the 1s
 	 */
-	private CANTalon driveCANTalonLeft1 = new CANTalon(43), driveCANTalonLeft2 = new CANTalon(41); 
-	private CANTalon driveCANTalonRight1 = new CANTalon(44), driveCANTalonRight2 = new CANTalon(42);
+//	private CANTalon driveCANTalonLeft1 = new CANTalon(43), driveCANTalonLeft2 = new CANTalon(41); 
+//	private CANTalon driveCANTalonRight1 = new CANTalon(44), driveCANTalonRight2 = new CANTalon(42);
 	
 	/*
 	 * this creates a CANTalon for the gear handler, also taking in a CAN Device ID number
 	 */
-	private CANTalon gearHandlerCANTalon = new CANTalon(0); //TODO get this device id
-	
-	/*
-	 * this creates a CANTalon for the shooter
-	 */
-	private CANTalon shooterCANTalon = new CANTalon(0); //TODO get this device id
+//	private CANTalon gearHandlerCANTalon = new CANTalon(45); //TODO get this device id
+//	
+//	private CANTalon climberCANTalon = new CANTalon(47);
 	
 	/*
 	 * this creates a Talon object that will be used for the loader
+	 * This and the servo below take in a pwm channel to talk to
 	 */
-	private Talon loaderTalon = new Talon(0); 
+//	private Talon loaderTalon = new Talon(0); 
 	
 	/*
 	 * the servo that prevents the balls from reaching the shooter
 	 */
 	private Servo shooterFeader = new Servo(1); 
+	
 	/*
 	 * this creates an object of the drive train class 
 	 * the first parameter is the deadzone of the joysticks in the drive train
@@ -77,26 +87,35 @@ public class Robot extends SampleRobot {
 	 * the next 4 are the speed controllers that the robot will use for the robot
 	 * in this case, the 4 made as a field are passed in
 	 */
-	private DriveTrain drive = new DriveTrain(DEADZONE, DriveModes.ARCADE_DRIVE, joyLeft, joyRight, 
-								driveCANTalonLeft1, driveCANTalonLeft2, driveCANTalonRight1, driveCANTalonRight2);
+//	private DriveTrain drive = new DriveTrain(DEADZONE, DriveModes.ARCADE_DRIVE, joyLeft, joyRight, 
+//								driveCANTalonLeft1, driveCANTalonLeft2, driveCANTalonRight1, driveCANTalonRight2);
 	
 	/*
 	 * this creates an object of the gear handler class
 	 * the first parameter is a CANTalon for controlling the gate
 	 */
-	private GearHandler gearHandler = new GearHandler(joyOP, gearHandlerCANTalon);
+//	private GearHandler gearHandler = new GearHandler(joyOP, gearHandlerCANTalon);
 
-	private Loader loader = new Loader(joyOP, loaderTalon);
+//	private Loader loader = new Loader(joyOP, loaderTalon);
 	
-	private Shooter shooter = new Shooter(joyOP, shooterCANTalon,shooterFeader);
+	private Shooter shooter = new Shooter(joyRight, shooterCANTalon,shooterFeader);
 	
+//	private Climber climber = new Climber(joyOP, climberCANTalon, DEADZONE);
+	 
+	private CameraSwitch cs;
+	
+	public void test(){
+		LiveWindow.run();
+//		shooter.update();
+	}
 	
 	/*
 	 * constructor for the robot, does all of the initialization
 	 */
 	public Robot(){
-		drive.setDriveMode(DriveModes.ARCADE_DRIVE);
-		drive.useEncoderForDrive(true);
+//		cs = new CameraSwitch(joyRight);
+//		drive.setDriveMode(DriveModes.ARCADE_DRIVE);
+//		drive.useEncoderForDrive(true);
 	}
 	
 	public void operatorControl() {
@@ -105,9 +124,10 @@ public class Robot extends SampleRobot {
 			 * each of the subsystems have an update method that will update the subsystem by using the speed controller
 			 * or keeping a position, or take in user input and such...
 			 */
-			drive.update();
+//			drive.update();
 //			gearHandler.update();
-//			shooter.update();
+			shooter.update();
+			
 			
 			Timer.delay(0.005);
 		}
