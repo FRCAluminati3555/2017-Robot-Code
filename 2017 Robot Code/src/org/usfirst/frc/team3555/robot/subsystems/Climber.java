@@ -10,7 +10,7 @@ public class Climber implements SubSystem{
 	 * Operator joystick that controls the climber motor
 	 * CANTalon that will control the motor
 	 */
-	private Joystick joyOP;
+	private Joystick joystck;
 	private CANTalon climberCANTalon;
 	
 	/*
@@ -22,18 +22,18 @@ public class Climber implements SubSystem{
 	 * this represents how much current means that the robot is at the top
 	 * if it is this value then that must mean we are at the top of the rope pushing against the plate
 	 */
-	private double atTopCurrent = 4;//TODO get this value
+//	private double atTopCurrent = 4;//TODO get this value
 	
 	/*
 	 * boolean that tells whether or not the robot is at the top of the rope
 	 */
-	private boolean atTop;
+//	private boolean atTop;
 	
 	/*
 	 * array that represents the limit switches at the top of the robot
 	 * these will say whether or not we are at the top of the robot
 	 */
-	private DigitalInput[] limitSwitches;
+//	private DigitalInput[] limitSwitches;
 	
 	/*
 	 * constructor for the climber class
@@ -46,11 +46,11 @@ public class Climber implements SubSystem{
 	 * it is treated like an array, but it can be passed in as just 1 when creating the object of the climber   
 	 */
 	public Climber(Joystick joyOP, CANTalon climberCANTalon, double deadzone, DigitalInput...digitalInputs){
-		this.joyOP = joyOP;
+		this.joystck = joyOP;
 		this.climberCANTalon = climberCANTalon;
 		this.deadzone = deadzone;
 		
-		limitSwitches = digitalInputs;
+//		limitSwitches = digitalInputs;
 		
 		/*
 		 * Sets the CANTalon to percent mode
@@ -78,18 +78,18 @@ public class Climber implements SubSystem{
 	 * or we're touching the plate, but haven't yet pushed the plate all the way up
 	 */
 	public void update() {
-		if(climberCANTalon.getOutputCurrent() >= atTopCurrent){
-			for(int i = 0; i < limitSwitches.length; i++){ // steps through the array of limitswitches
-				if(limitSwitches[i].get()){//TODO check how the switches are wired for value of pressed
-					atTop = true;
-					climberCANTalon.set(0);
-					break;
-				}
-			}
-		}
+//		if(climberCANTalon.getOutputCurrent() >= atTopCurrent){
+//			for(int i = 0; i < limitSwitches.length; i++){ // steps through the array of limitswitches
+//				if(limitSwitches[i].get()){//TODO check how the switches are wired for value of pressed
+//					atTop = true;
+//					climberCANTalon.set(0);
+//					break;
+//				}
+//			}
+//		}
 		
-		if(Math.abs(joyOP.getRawAxis(1)) > deadzone && joyOP.getRawButton(1) && atTop == false){
-			climberCANTalon.set(joyOP.getRawAxis(1));
+		if(joystck.getRawAxis(1) > deadzone && joystck.getRawButton(3)){// && atTop == false){
+			climberCANTalon.set(joystck.getRawAxis(1));
 		}
 		else{
 			climberCANTalon.set(0);

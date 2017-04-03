@@ -21,17 +21,22 @@ public class Shooter implements SubSystem{
 	 * This is the servo that will either let the balls throughto the shooter
 	 * or block them from going in
 	 */
-	private Servo feader;
-	
-	/*
-	 * These variables represent the positions of the servo for either blocking or letting balls into the shooter
-	 */
-	private int feaderPositionUp = 255, feaderPositionDown = 0;//TODO get real values
+	private Servo swisher;
 	
 	/*
 	 * these represent the rpm that is needed for the each type of shot
 	 */
-	private double rpmHighGoal = 1000, rpmLowGoal = 500;//TODO get real values
+//	private double rpmHighGoal = 1000, rpmLowGoal = 500;//TODO get real values
+	
+	/*
+	 * variable used for the servo to represent the last time that the robot turned the servo, in mili seconds
+	 */
+	private long last;
+	
+	/*
+	 * field that represents the deadzone for the joysticks
+	 */
+	private double deadzone;
 	
 	/*
 	 * Constructor for the Shooter class
@@ -39,11 +44,12 @@ public class Shooter implements SubSystem{
 	 * Also takes in the joystick that will control the shooter
 	 * This will also take in the Servo that will either block or let balls into the shooter
 	 */
-	public Shooter(Joystick joyOP, CANTalon shooterCANTalon, Servo feader){
+	public Shooter(Joystick joyOP, CANTalon shooterCANTalon, Servo swisher, double deadzone){
 		this.joyOP = joyOP;
 		this.shooterCANTalon = shooterCANTalon;
 		
-		this.feader = feader;
+		this.swisher = swisher;
+		this.deadzone = deadzone;
 		
 		/*
 		 * general init of a CANTalon
@@ -52,22 +58,9 @@ public class Shooter implements SubSystem{
 		 * set the amount of encoder pulses per revolution of the motor (used to keep track of revolutions)
 		 * enables the closed loop to begin
 		 */
-//		shooterCANTalon.reset();
-//		shooterCANTalon.setPosition(0);
-//		shooterCANTalon.changeControlMode(CANTalon.TalonControlMode.Speed);
-//		shooterCANTalon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
-//		shooterCANTalon.configEncoderCodesPerRev(500);
-//		shooterCANTalon.configNominalOutputVoltage(+0.0f, -0.0f);
-//        shooterCANTalon.configPeakOutputVoltage(+12.0f, -12.0f);
-//		shooterCANTalon.setF(0);
-//		shooterCANTalon.setPID(.5, 0, 0); 
-//		shooterCANTalon.reverseSensor(true);
-//		shooterCANTalon.enableControl();
-//		shooterCANTalon.set(1000);
-		
 		shooterCANTalon.reset();
 		shooterCANTalon.setPosition(0);
-		shooterCANTalon.changeControlMode(CANTalon.TalonControlMode.Voltage);
+		shooterCANTalon.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 		shooterCANTalon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
 		shooterCANTalon.configEncoderCodesPerRev(500);
 		shooterCANTalon.configNominalOutputVoltage(+0.0f, -0.0f);
@@ -76,67 +69,73 @@ public class Shooter implements SubSystem{
 		shooterCANTalon.setPID(0, 0, 0); 
 		shooterCANTalon.reverseSensor(true);
 		shooterCANTalon.enableControl();
-		shooterCANTalon.set(5);
-		
-//		shooterCANTalon.changeControlMode(CANTalon.TalonControlMode.Speed);
-//		shooterCANTalon.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-//		shooterCANTalon.reverseSensor(true);
-//		shooterCANTalon.setEncPosition(0);
-//		shooterCANTalon.setF(0);
-//		shooterCANTalon.setPID(2.5,0,5);//TODO test for these values!
-//		shooterCANTalon.configEncoderCodesPerRev(500);//TODO get this value
-//		shooterCANTalon.enableControl();
+//		shooterCANTalon.set(1000);
 	}
 	
 	/*
 	 * Update method implemented by the subsystem interface
-	 * This will listen for the user pressing either buttons to shoot for the high goal or the low goal
+	 * This will listen for a specific button and/or axis
 	 */
 	public void update(){
-//		if(joyOP.getRawButton(10)){
-//			shootWithRPM(rpmHighGoal);
+		/*
+		 * shoot by pressing trigger and pushing forward
+		 */
+		if(Math.abs(joyOP.getRawAxis(1)) >= deadzone && joyOP.getRawButton(1)){
+			shooterCANTalon.set(joyOP.getRawAxis(1) * -1);
+    	}
+		else{
+			shooterCANTalon.set(0);
+		}
+		
+		/*
+		 * hold down button 9, button on the side of the operator joystick
+		 * this will make the servo move back and forward every half second
+		 */
+//		if(joyOP.getRawButton(9)){
+//			if(System.currentTimeMillis() > last + 500){
+//				if(swisher.getAngle() == 150)
+//					swisher.setAngle(45);
+//				else{
+//					swisher.setAngle(150);
+//				}
+//				last = System.currentTimeMillis();
+//			}
 //		}
-//		else if(joyOP.getRawButton(11)){
-//			shootWithRPM(rpmLowGoal);
-//		}
-//		else{
-//			shooterCANTalon.set(0);
-//			feader.setRaw(feaderPositionDown);
-//		}
-//		shooterCANTalon.set(1);
-//		if(Math.abs(joyOP.getRawAxis(1)) > .1)
-//			shooterCANTalon.set(joyOP.getRawAxis(1));
-//		else
-//			shooterCANTalon.set(5);
+		
+		/*
+		 * Print Statements to the screen
+		 */
 		SmartDashboard.putNumber("Shooter Speed (rpm): ", shooterCANTalon.getSpeed());
 		SmartDashboard.putNumber("Enc Values: ", shooterCANTalon.getEncPosition());
 		SmartDashboard.putNumber("Talon Pos: ", shooterCANTalon.getPosition());
 		SmartDashboard.putNumber("Talon Current: ", shooterCANTalon.getOutputCurrent());
 		SmartDashboard.putNumber("Target: ", shooterCANTalon.getSetpoint());
 		SmartDashboard.putNumber("Talon Voltage: ", shooterCANTalon.getOutputVoltage());
-//		SmartDashboard.putNumber(key, value)
-		
 	}
 
-	/*
-	 * method that will set the rpm of the shooter
-	 * and blocks the balls from entering the shooter
+	/**
+	 * below is not used currently
 	 */
-	public void setRPM(double rpm){
-		feader.setRaw(feaderPositionDown);
-		shooterCANTalon.set(rpm);
-	}
-	
-	/*
-	 * method that will spin up the motor to the given rpm
-	 * once it is at the rpm, the servo will let the balls through, and they'll start to shoot
-	 */
-	public void shootWithRPM(double rpm){
-		setRPM(rpm);
-		
-		if(shooterCANTalon.getSpeed() > rpm-10){
-			feader.setRaw(feaderPositionUp);
-		}
-	}
+//	
+//	/*
+//	 * method that will set the rpm of the shooter
+//	 * and blocks the balls from entering the shooter
+//	 */
+//	public void setRPM(double rpm){
+//		feader.setRaw(feaderPositionDown);
+//		shooterCANTalon.set(rpm);
+//	}
+//	
+//	/*
+//	 * method that will spin up the motor to the given rpm
+//	 * once it is at the rpm, the servo will let the balls through, and they'll start to shoot
+//	 */
+//	public void shootWithRPM(double rpm){
+//		setRPM(rpm);
+//		
+//		if(shooterCANTalon.getSpeed() > rpm-10){
+//			feader.setRaw(feaderPositionUp);
+//		}
+//	}
 }
 

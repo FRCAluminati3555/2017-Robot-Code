@@ -3,17 +3,15 @@ package org.usfirst.frc.team3555.robot.subsystems;
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class GearHandler implements SubSystem{
-	/*
-	 * CANTalon for the GearHandler
-	 */
 	private CANTalon gearHandlerCANTalon;
 	
-	private Joystick joyOP;
+	private Joystick joystick;
 	
 	/*
-	 * An enumeration to represent the different Positions that the gear handler can be in
+	 * An enumeration to represent the different positions that the gear handler can be in
 	 */
 	public static enum GearHandlerPositions{
 		UPPER_POS, MIDDLE_POS, DOWN_POS
@@ -34,13 +32,18 @@ public class GearHandler implements SubSystem{
 	 * enables control to the CANTalon
 	 */
 	public GearHandler(Joystick joyOP, CANTalon gearHandlerCANTalon){
-		this.joyOP = joyOP;
+		this.joystick = joyOP;
 		this.gearHandlerCANTalon = gearHandlerCANTalon;
+		
+//		SmartDashboard.putString("Gear Handler Position: ", "Middle");
 		
 		gearHandlerCANTalon.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
 		gearHandlerCANTalon.changeControlMode(CANTalon.TalonControlMode.Position);
 		gearHandlerCANTalon.setPID(12.8, 0, 0);
+		gearHandlerCANTalon.setInverted(false);
 		gearHandlerCANTalon.enableControl();
+		
+		setToPosistion(GearHandlerPositions.UPPER_POS);
 	}
 	
 	/*
@@ -51,14 +54,15 @@ public class GearHandler implements SubSystem{
 	 */
 	public void setToPosistion(GearHandlerPositions pos){
 		if(pos == GearHandlerPositions.UPPER_POS){
-			toPosition = 460;
+			toPosition = 275;//460;
 		}
 		else if(pos == GearHandlerPositions.MIDDLE_POS){
-			toPosition = 600;
+			toPosition = 375;//460;
 		}
 		else if(pos == GearHandlerPositions.DOWN_POS){
-			toPosition = 720;
+			toPosition = 450;//525
 		}
+		gearHandlerCANTalon.set(toPosition);
 	}
 	
 	/*
@@ -67,15 +71,21 @@ public class GearHandler implements SubSystem{
 	 * this will make the CANTalon go to the position of the field
 	 */
 	public void update(){
-		if(joyOP.getRawButton(8)){
+		if(joystick.getRawButton(7)){//8
 			setToPosistion(GearHandlerPositions.UPPER_POS);
+			SmartDashboard.putString("Gear Handler Position: ", "Upper");
 		}
-		else if(joyOP.getRawButton(10)){
+		else if(joystick.getRawButton(9)){//10
 			setToPosistion(GearHandlerPositions.MIDDLE_POS);
+			SmartDashboard.putString("Gear Handler Position: ", "Middle");
 		}
-		else if(joyOP.getRawButton(12)){	
+		else if(joystick.getRawButton(11)){//12	
 			setToPosistion(GearHandlerPositions.DOWN_POS);
+			SmartDashboard.putString("Gear Handler Position: ", "Down");
 		}
 		gearHandlerCANTalon.set(toPosition);
+		
+		SmartDashboard.putNumber("Gear Handler Pot Pos: ", gearHandlerCANTalon.getPosition());
+		
 	}
 }

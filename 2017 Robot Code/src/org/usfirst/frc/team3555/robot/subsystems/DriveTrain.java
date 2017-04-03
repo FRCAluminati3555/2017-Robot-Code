@@ -3,19 +3,34 @@ package org.usfirst.frc.team3555.robot.subsystems;
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain implements SubSystem{
 	/*
 	 * fields that take the place of the passed in variable so the rest of the class can see them
 	 */
-	private Joystick joyLeft, joyRight;
+	private Joystick joyStickLeft, joyStickRight;
+	
+	private XboxController xboxController;
 	
 	/*
 	 * represents the deadzone on the joysticks to prevent the motors from moving at .005%
 	 */
 	private double deadzone;
 	
+	/*
+	 * This multiplies to the value of the joystick, so that the driver can widen the range of precision in a 
+	 * situation with slow and more precise movements (a value of 0 - 1 )  
+	 */
+	private double scaleFactor;
+	
+	/*
+	 * This variable will set the lower bound limit to the scale factor so that the driver won't accidently put it to 0
+	 * which would make the robot not move
+	 */
+	private double scaleFactorLimit;
 	/*
 	 * pid constants for the drive train CANTalons
 	 */
@@ -27,6 +42,8 @@ public class DriveTrain implements SubSystem{
 	 */
 	private boolean encoderDrive;
 	
+	private boolean controlWithXboxController;
+	
 	/*
 	 * allows driver to reverse controls
 	 * this is done by either having this variable being negative 1 or positive 1, then is multiplied to the 
@@ -35,6 +52,11 @@ public class DriveTrain implements SubSystem{
 	 */
 	private int invertedDrive;
 
+	/*
+	 * This is used to tell if the function with the button has already been pressed
+	 * that way it doesn't get called many times over on 1 press
+	 */
+	private boolean invertButtonPressed;	
 	/*
 	 * CANTalon fields that represent the CANTalons on the drive train
 	 * the naming convention is based on the fact that the two sides both have 2 speed controllers that control 1 shaft
@@ -59,17 +81,19 @@ public class DriveTrain implements SubSystem{
 	private DriveModes currentControlMode;
 	
 	/*
-	 * contructor for the Drive Train class
+	 * Constructor for the Drive Train class
 	 */
-	public DriveTrain(double deadzone, DriveModes startingControlMode, Joystick joyLeft, Joystick joyRight,
+	public DriveTrain(double deadzone, DriveModes startingControlMode, Joystick joyLeft, Joystick joyRight, XboxController controller,
 			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2){
 		
+		scaleFactorLimit = .3;
 		/*
 		 * sets the fields of the class to the passed in parameters of the constructor
 		 */
 		this.deadzone = deadzone;
-		this.joyLeft = joyLeft;
-		this.joyRight = joyRight;
+		this.joyStickLeft = joyLeft;
+		this.joyStickRight = joyRight;
+		this.xboxController = controller;
 		
 		currentControlMode = startingControlMode;
 		
@@ -80,10 +104,12 @@ public class DriveTrain implements SubSystem{
 		
 		maxRPM = 5330;
 		
+		scaleFactor = 1;
+		
 		/* 
-		 * -1 is the standard orientation of the robot encoders
+		 * 1 is the standard orientation of the robot encoders
 		 */
-		invertedDrive = -1;
+		invertedDrive = 1;
 		
 		/**
 		 * the init of the CANTalons
@@ -146,36 +172,64 @@ public class DriveTrain implements SubSystem{
 	 * this is the method that will check which drive mode that is chosen, 
 	 * then it will do the math of the corresponding drive mode, and use that to control the robot
 	 */
-	double tempRightPos;
-	double tempRightNeg;
-	double tempLeftPos;
-	double tempLeftNeg;
+//	double tempRightPos;
+//	double tempRightNeg;
+//	double tempLeftPos;
+//	double tempLeftNeg;
 	
 	public void update(){
+		/*
+		 * checks which side the slider is on, -1 is the top of the slider
+		 * 1 is the bottom of the robot
+		 * if it is at the bottom side, then the drive train will control with the controller
+		 * if it is at the top side then the drive will control with the joysticks
+		 */
+//		if(joyStickRight.getRawAxis(2) > 0)
+//			controlWithXboxController = true;
+//		else if(joyStickRight.getRawAxis(2) < 0)
+//			controlWithXboxController = false;
+//
+		
+		/*
+		 * (pot+1)/2
+		 */
+		scaleFactor = ((joyStickRight.getRawAxis(2) * -1) + 1)/2;
+		
+		if(scaleFactor < scaleFactorLimit){
+			scaleFactor = scaleFactorLimit;
+		}
+		
+		/*
+		 * checks button 7 & 6 to switch drive mode
+		 */
+		if(joyStickRight.getRawButton(7))
+			currentControlMode = DriveModes.ARCADE_DRIVE;
+		if(joyStickRight.getRawButton(6))
+			currentControlMode = DriveModes.TANK_DRIVE;
+		
+		/*
+		 * inverts the controls
+		 * meaning that the back is now the front 
+		 * and the front is now the back
+		 * the method will alternate from where it was
+		 */
+		if(joyStickRight.getRawButton(2))
+			invertControls();
+			
+		/*
+		 * depending on which control mode is the current
+		 * it will call that modes logic method
+		 */
 		if(currentControlMode == DriveModes.ARCADE_DRIVE)
 			arcadeDrive();
 		else if(currentControlMode == DriveModes.TANK_DRIVE)
 			tankDrive();
 		
-		if(right1.getSpeed() > tempRightPos)
-			tempRightPos = right1.getSpeed();
-		if(right1.getSpeed() < tempRightNeg)
-			tempRightNeg = right1.getSpeed();
-		
-		if(left1.getSpeed() > tempLeftPos)
-			tempLeftPos = left1.getSpeed();
-		if(left1.getSpeed() < tempLeftNeg)
-			tempLeftNeg = left1.getSpeed();
-		
-		SmartDashboard.putNumber("Max Left Neg: ", tempLeftNeg);
-		SmartDashboard.putNumber("Max Left Pos: ", tempLeftPos);
-		SmartDashboard.putNumber("Max Right Neg: ", tempRightNeg);
-		SmartDashboard.putNumber("Max Right Pos: ", tempRightPos);
-		
-		SmartDashboard.putNumber("Left Master: ", left1.get());
-		SmartDashboard.putNumber("Left Slave: ", left2.get());
-		SmartDashboard.putNumber("Right Slave: ", right2.get());
-		SmartDashboard.putNumber("Right Master: ", right1.get());
+		/*
+		 * Print Statements
+		 */
+		SmartDashboard.putString("Drive Mode: ", String.valueOf(currentControlMode));
+		SmartDashboard.putString("Controls Inverted: ", invertedDrive == 1 ? "Gear Handler Front" : "Shooter Front");
 	}
 	
 	/*
@@ -191,15 +245,14 @@ public class DriveTrain implements SubSystem{
 	 * this is a method that can invert the controls of the robot
 	 * this would be used when the robot faces towards the driver
 	 */
-	public void invertControls(boolean invert){
-		if(invert)
-			invertedDrive = 1;
-		else
-			invertedDrive = -1;
+	public void invertControls(){
+		invertedDrive *= -1;
 	}
 	
 	/*
 	 * this is a method that will allow the user to change whether or not the encoders are used in the drive controls
+	 * It will change properties of the SRX such as the control modes and the pid values
+	 * The parameter is to tell whether or not to use the encoders in the drive
 	 */
 	public void useEncoderForDrive(boolean use){
 		encoderDrive = use;
@@ -220,8 +273,8 @@ public class DriveTrain implements SubSystem{
 			left1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 			right1.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 			
-//			left1.setPID(p, i, d);
-//			right1.setPID(p, i, d);
+			left1.setPID(p, i, d);
+			right1.setPID(p, i, d);
 			
 			left1.enableControl();
 			right1.enableControl();
@@ -229,10 +282,29 @@ public class DriveTrain implements SubSystem{
 	}
 	
 	/*
+	 * method that will automatically drive each side at a certain speed for a certain amount of time
+	 * represented by the parameters
+	 * currently left is getting right's speed because the robot's starting front is the gear handler
+	 */
+	public void autoDrive(double speedLeft, double speedRight, double seconds){
+		left1.set(speedRight);
+		right1.set(speedLeft);
+		left2.set(left1.getDeviceID());
+		right2.set(right1.getDeviceID());
+		
+		Timer.delay(seconds);
+		
+		left1.set(0);
+		right1.set(0);
+		left2.set(left1.getDeviceID());
+		right2.set(right1.getDeviceID());
+	}
+	
+	/*
 	 * calculates the math for arcade drive
-	 * starts off by creating 2 variables to store the to-be calculated speed
+	 * starts off by creating 2 variables to store the to-be calculated speeds
 	 * 
-	 * the absolute value of the joystick axises is taken to narrow down the amount of conditions to check
+	 * the absolute value of the joystick's axises is taken to narrow down the amount of conditions to check
 	 * this will check if the joystick is out side a theoretical deazone box on the joystick
 	 * 
 	 * general formula for arcade drive: 
@@ -243,18 +315,24 @@ public class DriveTrain implements SubSystem{
 	 * 
 	 * then the two first speed controllers are set to the corresponding side speed
 	 * the other two follow the first of the side
+	 * 
+	 * the two variables are also multiplied by the scale factor (given by the slider on the drive joystick)
 	 */ 
 	public void arcadeDrive(){
 		double leftSpeed = 0;
     	double rightSpeed = 0;
     	
-    	if(Math.abs(joyRight.getRawAxis(1)) >= deadzone || Math.abs(joyRight.getRawAxis(0)) >= deadzone){ 
-    		leftSpeed = joyRight.getRawAxis(1) - joyRight.getRawAxis(0);
-    		rightSpeed = -joyRight.getRawAxis(1) - joyRight.getRawAxis(0);
+    	if(Math.abs(joyStickRight.getRawAxis(1)) >= deadzone || Math.abs(joyStickRight.getRawAxis(0)) >= deadzone){ 
+    		leftSpeed = (joyStickRight.getRawAxis(1) + (joyStickRight.getRawAxis(0) * invertedDrive)) * scaleFactor;
+    		rightSpeed = (-joyStickRight.getRawAxis(1) + (joyStickRight.getRawAxis(0) * invertedDrive)) * scaleFactor;
     	}
     	
-//    	left1.set(leftSpeed * maxRPM * invertedDrive);
-//    	right1.set(rightSpeed * maxRPM * invertedDrive);
+    	/*
+    	 * the ? : is an in line if statement
+    	 * boolean == true ? this executes if the boolean is true : else statement
+    	 * this will see if the drive train is to be controlled by rpm with encoders
+    	 * or just control by percentage
+    	 */
     	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
     	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
     	left2.set(left1.getDeviceID());
@@ -262,25 +340,56 @@ public class DriveTrain implements SubSystem{
 	}
 	
 	/*
-	 * tank drive starts off with two variables to store the speed value
-	 * it will then check if the joysticks are outside the deadzone
-	 * if they are, the corresponding value is set to that amount
-	 */
+	 * calculates the math for tank drive
+	 * starts off by creating 2 variables to store the to-be calculated speeds
+	 * 
+	 * the absolute value of the joysticks axises is taken to narrow down the amount of conditions to check
+	 * this will check if the joystick is out side a theoretical deazone box on the joystick
+	 * 
+	 * then the two first speed controllers are set to the corresponding side speeds
+	 * the other two follow the first of the side
+	 * 
+	 * the two variables are also multiplied by the scale factor (given by the slider on the drive joystick)
+	 * 
+	 * This also contains logic for a Xbox controller, but it's untested, may or may not work
+	 */ 
 	public void tankDrive(){
 		double leftSpeed = 0;
     	double rightSpeed = 0;
     	
-    	if(Math.abs(joyLeft.getRawAxis(1)) >= deadzone){
-        	leftSpeed = joyLeft.getRawAxis(1);
+    	/*
+    	 * if statements to check what type of controller is in use
+    	 */
+    	if(controlWithXboxController){
+    		if(Math.abs(xboxController.getRawAxis(1)) >= deadzone){
+	        	leftSpeed = xboxController.getRawAxis(1);
+	    	}
+	    	
+	    	if(Math.abs(joyStickRight.getRawAxis(5)) >= deadzone){
+	    		rightSpeed = -joyStickRight.getRawAxis(5);
+	    	}
+	    	
+	    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
+	    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
+	    	left2.set(left1.getDeviceID());
+	    	right2.set(right1.getDeviceID());
     	}
-    	
-    	if(Math.abs(joyRight.getRawAxis(1)) >= deadzone){
-    		rightSpeed = -joyRight.getRawAxis(1);
-    	}
-    	
-    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
-    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
-    	left2.set(left1.getDeviceID());
-    	right2.set(right1.getDeviceID());
+    	else{
+	    	if(Math.abs(joyStickLeft.getRawAxis(1)) >= deadzone){
+	        	leftSpeed = joyStickLeft.getRawAxis(1) * scaleFactor;
+	    	}
+	    	
+	    	if(Math.abs(joyStickRight.getRawAxis(1)) >= deadzone){
+	    		rightSpeed = -joyStickRight.getRawAxis(1) * scaleFactor;
+	    	}
+	    	
+	    	/*
+	    	 * see above
+	    	 */
+	    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
+	    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
+	    	left2.set(left1.getDeviceID());
+	    	right2.set(right1.getDeviceID());
+		}
     }
 }
