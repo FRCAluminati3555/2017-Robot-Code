@@ -2,7 +2,6 @@ package org.usfirst.frc.team3555.robot.vision;
 
 import org.opencv.core.Mat;
 
-import edu.wpi.cscore.AxisCamera;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -12,7 +11,6 @@ import edu.wpi.first.wpilibj.Joystick;
 /*
  * This was taken from the example programs (intermediate vision) by WPI
  * and re-purposed for camera switching with a joystick
- * Further research needs to be done to fully understand how this works
  */
 public class CameraSwitch {
 	Thread visionThread;
@@ -33,8 +31,8 @@ public class CameraSwitch {
 			/*
 			 * create the cameras here
 			 */
-			AxisCamera cam0 = new AxisCamera("cam0", "10.35.55.51");
-			UsbCamera cam1 = new UsbCamera("cam1", 0);
+			UsbCamera cam0 = new UsbCamera("cam0", 0);
+			UsbCamera cam1 = new UsbCamera("cam1", 1);
 			
 			/*
 			 * config them however here
@@ -55,9 +53,9 @@ public class CameraSwitch {
 			while (!Thread.interrupted()) {
 				// Tell the CvSink to grab a frame from a camera and put it in the source mat.
 				// If there is an error notify the output.
-				if(joy.getRawButton(10))
-					cvSink = CameraServer.getInstance().getVideo(cam0);
 				if(joy.getRawButton(11))
+					cvSink = CameraServer.getInstance().getVideo(cam0);
+				if(joy.getRawButton(9))
 					cvSink = CameraServer.getInstance().getVideo(cam1);
 				
 				
