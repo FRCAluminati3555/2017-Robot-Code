@@ -1,16 +1,18 @@
 package org.usfirst.frc.team3555.robot.subsystems;
 
+import org.usfirst.frc.team3555.robot.control.input.JoystickMappings;
+import org.usfirst.frc.team3555.robot.control.input.LinearJoystick;
+
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Joystick;
 
 public class Climber implements SubSystem{
 	/*
 	 * Operator joystick that controls the climber motor
 	 * CANTalon that will control the motor
 	 */
-	private Joystick joystck;
+	private LinearJoystick joystck;
 	private CANTalon climberCANTalon;
 	
 	/*
@@ -45,7 +47,7 @@ public class Climber implements SubSystem{
 	 * that could be either just 1 limit switch, or multiple
 	 * it is treated like an array, but it can be passed in as just 1 when creating the object of the climber   
 	 */
-	public Climber(Joystick joyOP, CANTalon climberCANTalon, double deadzone, DigitalInput...digitalInputs){
+	public Climber(LinearJoystick joyOP, CANTalon climberCANTalon, double deadzone, DigitalInput...digitalInputs){
 		this.joystck = joyOP;
 		this.climberCANTalon = climberCANTalon;
 		this.deadzone = deadzone;
@@ -88,8 +90,8 @@ public class Climber implements SubSystem{
 //			}
 //		}
 		
-		if(joystck.getRawAxis(1) > deadzone && joystck.getRawButton(3)){// && atTop == false){
-			climberCANTalon.set(joystck.getRawAxis(1));
+		if(joystck.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y) > deadzone && joystck.isButtonPressed(JoystickMappings.LogitechExtreme3D_Button.Top_Lower_Left)){// && atTop == false){
+			climberCANTalon.set(joystck.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y));
 		}
 		else{
 			climberCANTalon.set(0);

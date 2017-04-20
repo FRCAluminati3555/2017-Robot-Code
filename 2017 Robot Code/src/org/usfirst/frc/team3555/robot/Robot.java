@@ -15,33 +15,31 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 public class Robot extends SampleRobot {
 	/*
 	 * The engine class hold references to all of the objects
+	 * This just takes code away from this class
 	 */
 	private Engine engine;
 	
 	/*
-	 *	this is an object of the widget on the smart dashboard to choose an autonomous
-	 *	not used currently  
+	 *	This is an object of the widget on the smart dashboard to choose an autonomous
+	 *	Not used currently  
 	 */
 //	private SendableChooser<Object> autoChooser = new SendableChooser<>();
 
 	/*
 	 * This is the test method, just starts up the live window for the robot, can do real time testing
-	 * hence the live part in the name
-	 * 
+	 * Hence the live part in the name
 	 */
 	public void test(){
 		LiveWindow.run();
 	}
 	
 	/*
-	 * constructor for the robot, creates an object of the engine class that contains the subsystem objects
-	 * this will also set the different autonomouses that can be chosen in the dashboard
+	 * Constructor for the robot, creates an object of the engine class that contains the subsystem objects
+	 * This will also set the different autonomouses that can be chosen in the dashboard
+	 * Again that is not used
+	 * Additionally, the controls will start inverted because the gear handler is now the front
 	 */
 	public Robot(){
-		/*
-		 * the engine class just takes all the fields away from this class
-		 * making the Robot class more clean
-		 */
 		engine = new Engine();
 		engine.getDrive().invertControls();
 //		autoChooser.addDefault("Just Forward Auto", new JustForwardGearAutonomous());
@@ -49,6 +47,9 @@ public class Robot extends SampleRobot {
 //		autoChooser.addObject("Turn Left Gear Auto", new TurnLeftGearAutonomous());
 	}
 	
+	/*
+	 * The autonomous 
+	 */
 	public void autonomous(){
 //		Autonomous auto = (Autonomous) autoChooser.getSelected();
 //		auto.start();

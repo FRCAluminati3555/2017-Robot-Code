@@ -3,6 +3,9 @@ package org.usfirst.frc.team3555.robot.subsystems;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.usfirst.frc.team3555.robot.control.input.JoystickMappings;
+import org.usfirst.frc.team3555.robot.control.input.LinearJoystick;
+
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,7 +18,7 @@ public class Shooter implements SubSystem{
 	 * JoyOP is the operator joystick
 	 */
 	private CANTalon shooterCANTalon;
-	private Joystick joyOP;
+	private LinearJoystick joyOP;
 	
 	/*
 	 * This is the servo that will either let the balls throughto the shooter
@@ -44,7 +47,7 @@ public class Shooter implements SubSystem{
 	 * Also takes in the joystick that will control the shooter
 	 * This will also take in the Servo that will either block or let balls into the shooter
 	 */
-	public Shooter(Joystick joyOP, CANTalon shooterCANTalon, Servo swisher, double deadzone){
+	public Shooter(LinearJoystick joyOP, CANTalon shooterCANTalon, Servo swisher, double deadzone){
 		this.joyOP = joyOP;
 		this.shooterCANTalon = shooterCANTalon;
 		
@@ -80,8 +83,8 @@ public class Shooter implements SubSystem{
 		/*
 		 * shoot by pressing trigger and pushing forward
 		 */
-		if(Math.abs(joyOP.getRawAxis(1)) >= deadzone && joyOP.getRawButton(1)){
-			shooterCANTalon.set(joyOP.getRawAxis(1) * -1);
+		if(Math.abs(joyOP.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y)) >= deadzone && joyOP.isButtonPressed(JoystickMappings.LogitechExtreme3D_Button.Trigger)){
+			shooterCANTalon.set(joyOP.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y) * -1);
     	}
 		else{
 			shooterCANTalon.set(0);

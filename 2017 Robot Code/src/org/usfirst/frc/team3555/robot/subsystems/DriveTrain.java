@@ -1,5 +1,8 @@
 package org.usfirst.frc.team3555.robot.subsystems;
 
+import org.usfirst.frc.team3555.robot.control.input.JoystickMappings;
+import org.usfirst.frc.team3555.robot.control.input.ExponentialJoystick;
+
 import com.ctre.CANTalon;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -11,7 +14,7 @@ public class DriveTrain implements SubSystem{
 	/*
 	 * fields that take the place of the passed in variable so the rest of the class can see them
 	 */
-	private Joystick joyStickLeft, joyStickRight;
+	private ExponentialJoystick joyStickLeft, joyStickRight;
 	
 	private XboxController xboxController;
 	
@@ -83,7 +86,7 @@ public class DriveTrain implements SubSystem{
 	/*
 	 * Constructor for the Drive Train class
 	 */
-	public DriveTrain(double deadzone, DriveModes startingControlMode, Joystick joyLeft, Joystick joyRight, XboxController controller,
+	public DriveTrain(double deadzone, DriveModes startingControlMode, ExponentialJoystick joyLeft, ExponentialJoystick joyRight, XboxController controller,
 			CANTalon left1, CANTalon left2, CANTalon right1, CANTalon right2){
 		
 		scaleFactorLimit = .3;
@@ -193,7 +196,7 @@ public class DriveTrain implements SubSystem{
 		/*
 		 * (pot+1)/2
 		 */
-		scaleFactor = ((joyStickRight.getRawAxis(2) * -1) + 1)/2;
+		scaleFactor = ((joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Slider) * -1) + 1)/2;
 		
 		if(scaleFactor < scaleFactorLimit){
 			scaleFactor = scaleFactorLimit;
@@ -202,9 +205,9 @@ public class DriveTrain implements SubSystem{
 		/*
 		 * checks button 7 & 6 to switch drive mode
 		 */
-		if(joyStickRight.getRawButton(7))
+		if(joyStickRight.isButtonPressed(JoystickMappings.LogitechAttack3_Button.Button_7))
 			currentControlMode = DriveModes.ARCADE_DRIVE;
-		if(joyStickRight.getRawButton(6))
+		if(joyStickRight.isButtonPressed(JoystickMappings.LogitechAttack3_Button.Button_6))
 			currentControlMode = DriveModes.TANK_DRIVE;
 		
 		/*
@@ -213,8 +216,14 @@ public class DriveTrain implements SubSystem{
 		 * and the front is now the back
 		 * the method will alternate from where it was
 		 */
-		if(joyStickRight.getRawButton(2))
+		if(joyStickRight.isButtonPressed(JoystickMappings.LogitechAttack3_Button.Top_Lower) && !invertButtonPressed){
 			invertControls();
+			invertButtonPressed = true;
+		}
+		else{
+			invertButtonPressed = false;
+		}
+			
 			
 		/*
 		 * depending on which control mode is the current
@@ -322,9 +331,9 @@ public class DriveTrain implements SubSystem{
 		double leftSpeed = 0;
     	double rightSpeed = 0;
     	
-    	if(Math.abs(joyStickRight.getRawAxis(1)) >= deadzone || Math.abs(joyStickRight.getRawAxis(0)) >= deadzone){ 
-    		leftSpeed = (joyStickRight.getRawAxis(1) + (joyStickRight.getRawAxis(0) * invertedDrive)) * scaleFactor;
-    		rightSpeed = (-joyStickRight.getRawAxis(1) + (joyStickRight.getRawAxis(0) * invertedDrive)) * scaleFactor;
+    	if(Math.abs(joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y)) >= deadzone || Math.abs(joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X)) >= deadzone){ 
+    		leftSpeed = (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
+    		rightSpeed = (-joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
     	}
     	
     	/*
@@ -365,8 +374,8 @@ public class DriveTrain implements SubSystem{
 	        	leftSpeed = xboxController.getRawAxis(1);
 	    	}
 	    	
-	    	if(Math.abs(joyStickRight.getRawAxis(5)) >= deadzone){
-	    		rightSpeed = -joyStickRight.getRawAxis(5);
+	    	if(Math.abs(xboxController.getRawAxis(5)) >= deadzone){
+	    		rightSpeed = -xboxController.getRawAxis(5);
 	    	}
 	    	
 	    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
@@ -375,12 +384,12 @@ public class DriveTrain implements SubSystem{
 	    	right2.set(right1.getDeviceID());
     	}
     	else{
-	    	if(Math.abs(joyStickLeft.getRawAxis(1)) >= deadzone){
-	        	leftSpeed = joyStickLeft.getRawAxis(1) * scaleFactor;
+	    	if(Math.abs(joyStickLeft.getValue(JoystickMappings.LogitechAttack3_Axis.Y)) >= deadzone){
+	        	leftSpeed = joyStickLeft.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
 	    	}
 	    	
-	    	if(Math.abs(joyStickRight.getRawAxis(1)) >= deadzone){
-	    		rightSpeed = -joyStickRight.getRawAxis(1) * scaleFactor;
+	    	if(Math.abs(joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y)) >= deadzone){
+	    		rightSpeed = -joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
 	    	}
 	    	
 	    	/*

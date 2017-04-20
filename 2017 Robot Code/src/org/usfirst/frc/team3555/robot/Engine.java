@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3555.robot;
 
+import org.usfirst.frc.team3555.robot.control.input.LinearJoystick;
+import org.usfirst.frc.team3555.robot.control.input.ExponentialJoystick;
 import org.usfirst.frc.team3555.robot.subsystems.*;
 import org.usfirst.frc.team3555.robot.subsystems.DriveTrain.DriveModes;
 import org.usfirst.frc.team3555.robot.vision.CameraSwitch;
@@ -15,8 +17,9 @@ import edu.wpi.first.wpilibj.XboxController;
 public class Engine {
 	
 	/*
-	 * represents the deadzone on all joysticks, so that the motors won't be told to move at 
-	 * minute speeds that just drain the motor, and aren't enough to actually move the motor
+	 * When someone lets go of the joystick, it does not always come back to excatly 0
+	 * Meaning that the Rio will send the speed controller a very small amount of power, and that's not good
+	 * So, the deadzone is a theoretical box (looking at it in a 2D manner) that the 
 	 */
 	private final double DEADZONE = .02;
 	
@@ -26,7 +29,8 @@ public class Engine {
 	 * JoyOP is the operator joystick that will be used for everything except driving
 	 * the other two are for driving
 	 */
-	private Joystick joyOP = new Joystick(0), joyLeft = new Joystick(1), joyRight = new Joystick(2);
+	private LinearJoystick joyOP = new LinearJoystick(0, DEADZONE); 
+	private ExponentialJoystick joyLeft = new ExponentialJoystick(1, DEADZONE), joyRight = new ExponentialJoystick(2, DEADZONE);
 	
 	/*
 	 * Controller object that will look at an xbox controller (other controllers like the xbox controller will work as well, like a ps3 controller)
