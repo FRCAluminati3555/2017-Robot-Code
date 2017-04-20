@@ -17,7 +17,7 @@ public class Robot extends SampleRobot {
 //	private CANTalon talonRight2 = new CANTalon(42);
 											  //44 42
 	
-	private CANTalon talon = new CANTalon(47);
+	private CANTalon talon = new CANTalon(45);
 //	private XboxController joy = new XboxController(3);
 	private Joystick joy = new Joystick(0);
 //	UsbCamera camera = new UsbCamera("cam0", 0);
@@ -152,8 +152,8 @@ public class Robot extends SampleRobot {
 //			talon.set(1); //for position mode, tells it to turn once (test for pid constants) the constants above seems to work well
 //			talon.set(100); //for speed mode, tells it to turn at 100 rpm (test for pid constants) the constants above seems to work well 
 			
-//			SmartDashboard.putNumber("Talon Pot: ", talon.getAnalogInPosition());
-			SmartDashboard.putNumber("Talon Speed: ", talon.getSpeed());
+			SmartDashboard.putNumber("Talon Pot: ", talon.getAnalogInPosition());
+//			SmartDashboard.putNumber("Talon Speed: ", talon.getSpeed());
 ////			SmartDashboard.putNumber("Talon Encoder Pos: ", talon.getEncPosition());
 //			SmartDashboard.putNumber("Talon rpm: ", talon.getSpeed());
 //			SmartDashboard.putNumber("Talon Voltage: ", talon.getOutputVoltage());
