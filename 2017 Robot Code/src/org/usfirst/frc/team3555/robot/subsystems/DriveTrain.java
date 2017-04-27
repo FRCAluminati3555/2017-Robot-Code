@@ -146,8 +146,11 @@ public class DriveTrain implements SubSystem{
 		left1.setPID(p, i, d); //TODO test for these constants!
 		right1.setPID(p, i, d);
 		
-		left1.reverseSensor(true);
-		right1.reverseSensor(true);
+		left1.reverseSensor(false);
+		right1.reverseSensor(false);
+		
+		right1.setEncPosition(0);
+		left1.setEncPosition(0);
 		
 		/*
 		 * this sets the other two CANTalons to follower mode 
@@ -239,6 +242,8 @@ public class DriveTrain implements SubSystem{
 		 */
 		SmartDashboard.putString("Drive Mode: ", String.valueOf(currentControlMode));
 		SmartDashboard.putString("Controls Inverted: ", invertedDrive == 1 ? "Gear Handler Front" : "Shooter Front");
+		SmartDashboard.putNumber("Left Encoder Count: ", left1.getEncPosition());
+		SmartDashboard.putNumber("Right Encoder Count: ", right1.getEncPosition());
 	}
 	
 	/*
@@ -307,6 +312,32 @@ public class DriveTrain implements SubSystem{
 		right1.set(0);
 		left2.set(left1.getDeviceID());
 		right2.set(right1.getDeviceID());
+	}
+	
+	public void driveForRevs(int leftCount, int rightCount){
+		int initialLeft = left1.getEncPosition(), initialRight = right1.getEncPosition();
+		boolean leftRunning = true, rightRunning = true;
+		
+		while(leftRunning || rightRunning){
+			if(Math.abs(left1.getEncPosition()) < leftCount + initialLeft){
+				left1.set(-.3);
+			}
+			else{
+				left1.set(0);
+				leftRunning = false;
+			}
+			
+			if(right1.getEncPosition() < rightCount + initialRight){
+				right1.set(.3);
+			}
+			else{
+				right1.set(0);
+				rightRunning = false;
+			}
+			
+			SmartDashboard.putNumber("Left Encoder Count: ", left1.getEncPosition());
+			SmartDashboard.putNumber("Right Encoder Count: ", right1.getEncPosition());
+		}
 	}
 	
 	/*

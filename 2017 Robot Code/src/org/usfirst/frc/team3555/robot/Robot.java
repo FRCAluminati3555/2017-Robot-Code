@@ -53,9 +53,10 @@ public class Robot extends SampleRobot {
 	public void autonomous(){
 //		Autonomous auto = (Autonomous) autoChooser.getSelected();
 //		auto.start();
-		engine.getGearHandler().setToPosistion(GearHandlerPositions.UPPER_POS);
-		Timer.delay(.25);
-		engine.getDrive().autoDrive(.52, -.5, 3.75);
+//		engine.getGearHandler().setToPosistion(GearHandlerPositions.UPPER_POS);
+//		Timer.delay(.25);
+//		engine.getDrive().autoDrive(.52, -.5, 3.75);
+		engine.getDrive().driveForRevs(1000, 1000);
 	}
 	
 	public void operatorControl() {
