@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class Climber implements SubSystem{
 	/*
 	 * Operator joystick that controls the climber motor
-	 * CANTalon that will control the motor
+	 * CANTalon that will control the motor 
 	 */
 	private LinearJoystick joystck;
 	private CANTalon climberCANTalon;

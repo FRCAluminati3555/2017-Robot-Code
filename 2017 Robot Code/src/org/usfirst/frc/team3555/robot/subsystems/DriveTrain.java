@@ -34,8 +34,10 @@ public class DriveTrain implements SubSystem{
 	 * which would make the robot not move
 	 */
 	private double scaleFactorLimit;
+	
 	/*
-	 * pid constants for the drive train CANTalons
+	 * PID constants for the speed loop
+	 * Used for autonomous
 	 */
 	private double p = .65,i = 0,d = .1;
 	
@@ -63,11 +65,14 @@ public class DriveTrain implements SubSystem{
 	/*
 	 * CANTalon fields that represent the CANTalons on the drive train
 	 * the naming convention is based on the fact that the two sides both have 2 speed controllers that control 1 shaft
+	 * Left1 & Right1 are the masters
+	 * Left2 & Right2 are the followers
 	 */
 	private CANTalon left1, left2, right1, right2;
 	
 	/*
 	 * represents the max rpm of the motors on the robot
+	 * used when controlling with encoders, making it so that the encoders  s
 	 */
 	private double maxRPM;
 	
@@ -178,11 +183,6 @@ public class DriveTrain implements SubSystem{
 	 * this is the method that will check which drive mode that is chosen, 
 	 * then it will do the math of the corresponding drive mode, and use that to control the robot
 	 */
-//	double tempRightPos;
-//	double tempRightNeg;
-//	double tempLeftPos;
-//	double tempLeftNeg;
-	
 	public void update(){
 		/*
 		 * checks which side the slider is on, -1 is the top of the slider
@@ -197,10 +197,15 @@ public class DriveTrain implements SubSystem{
 //
 		
 		/*
-		 * (pot+1)/2
+		 * Changes scale factor based on location of the slider on the joystick
 		 */
 		scaleFactor = ((joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Slider) * -1) + 1)/2;
 		
+		
+		/*
+		 * makes sure that the scale factor isn't below the limit,
+		 * ensures that small values won't be used because that'd be pointless
+		 */
 		if(scaleFactor < scaleFactorLimit){
 			scaleFactor = scaleFactorLimit;
 		}
@@ -223,7 +228,7 @@ public class DriveTrain implements SubSystem{
 			invertControls();
 			invertButtonPressed = true;
 		}
-		else{
+		else if(!joyStickRight.isButtonPressed(JoystickMappings.LogitechAttack3_Button.Top_Lower)){
 			invertButtonPressed = false;
 		}
 			
@@ -244,6 +249,11 @@ public class DriveTrain implements SubSystem{
 		SmartDashboard.putString("Controls Inverted: ", invertedDrive == 1 ? "Gear Handler Front" : "Shooter Front");
 		SmartDashboard.putNumber("Left Encoder Count: ", left1.getEncPosition());
 		SmartDashboard.putNumber("Right Encoder Count: ", right1.getEncPosition());
+		
+		SmartDashboard.putNumber("LR, 43 Current: ", left1.getOutputCurrent());
+		SmartDashboard.putNumber("LF, 41 Current: ", left2.getOutputCurrent());
+		SmartDashboard.putNumber("RF, 42 current: ", right1.getOutputCurrent());
+		SmartDashboard.putNumber("RR, 44 Current: ", right2.getOutputCurrent());
 	}
 	
 	/*
@@ -314,12 +324,22 @@ public class DriveTrain implements SubSystem{
 		right2.set(right1.getDeviceID());
 	}
 	
-	public void driveForRevs(int leftCount, int rightCount){
-		int initialLeft = left1.getEncPosition(), initialRight = right1.getEncPosition();
+	/*
+	 * The objective here is to make it so that each side will only drive a certain amount of encoder counts
+	 * 
+	 * This is only to be used in autonomous
+	 * This method starts by getting initial values of the encoders
+	 * 	   Represented by initialLeft and initialRight
+	 * Then, there are two control booleans that will represent if each side should be moving
+	 * Then while moving it will check if the robot has moved more than the desired tick amount
+	 * The algorithm will control each side separately
+	 */
+	public void driveForRevs(int leftCount, int rightCount){ //TODO Driving Straight
+		double initialLeft = left1.getPosition(), initialRight = right1.getPosition();
 		boolean leftRunning = true, rightRunning = true;
 		
 		while(leftRunning || rightRunning){
-			if(Math.abs(left1.getEncPosition()) < leftCount + initialLeft){
+			if(Math.abs(left1.getPosition()) < leftCount + initialLeft){
 				left1.set(-.3);
 			}
 			else{
@@ -327,7 +347,7 @@ public class DriveTrain implements SubSystem{
 				leftRunning = false;
 			}
 			
-			if(right1.getEncPosition() < rightCount + initialRight){
+			if(Math.abs(right1.getPosition()) < rightCount + initialRight){
 				right1.set(.3);
 			}
 			else{
@@ -335,9 +355,54 @@ public class DriveTrain implements SubSystem{
 				rightRunning = false;
 			}
 			
-			SmartDashboard.putNumber("Left Encoder Count: ", left1.getEncPosition());
-			SmartDashboard.putNumber("Right Encoder Count: ", right1.getEncPosition());
+			SmartDashboard.putNumber("Left Encoder Count: ", left1.getPosition());
+			SmartDashboard.putNumber("Right Encoder Count: ", right1.getPosition());
 		}
+		
+		/*
+		 * Possible use with the CANTalons
+		 */
+		
+		/*
+		 * Resets the CANTalons, and changes the masters to speed loop rather than percent
+		 */
+//		left1.reset();
+//		right1.reset();
+//		left1.changeControlMode(CANTalon.TalonControlMode.Speed);
+//		right1.changeControlMode(CANTalon.TalonControlMode.Speed);
+//		
+//		left1.setPID(p, i, d);
+//		right1.setPID(p, i, d);
+//		
+//		left1.enableControl();
+//		right1.enableControl();
+//		
+//		int initialLeft = left1.getEncPosition(), initialRight = right1.getEncPosition();
+//		
+//		left1.set(100);
+//		right1.set(100);
+//		left2.set(left1.getDeviceID());
+//		right2.set(right1.getDeviceID());
+//		
+//		boolean leftRunning = true, rightRunning = true;
+//		
+//		while(leftRunning || rightRunning){
+//			if(Math.abs(left1.getEncPosition()) > leftCount + initialLeft){
+//				left1.set(0);
+//				leftRunning = false;
+//			}
+//			
+//			if(right1.getEncPosition() > rightCount + initialRight){
+//				right1.set(0);
+//				rightRunning = false;
+//			}
+//			
+//			left2.set(left1.getDeviceID());
+//			right2.set(right1.getDeviceID());
+//			
+//			SmartDashboard.putNumber("Left Encoder Count: ", left1.getEncPosition());
+//			SmartDashboard.putNumber("Right Encoder Count: ", right1.getEncPosition());
+//		}
 	}
 	
 	/*
@@ -432,4 +497,9 @@ public class DriveTrain implements SubSystem{
 	    	right2.set(right1.getDeviceID());
 		}
     }
+
+	public CANTalon getLeft1(){return left1;}
+	public CANTalon getLeft2(){return left2;}
+	public CANTalon getRight1(){return right1;}
+	public CANTalon getRight2(){return right2;}
 }

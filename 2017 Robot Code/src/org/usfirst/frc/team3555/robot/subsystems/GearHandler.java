@@ -46,26 +46,28 @@ public class GearHandler implements SubSystem{
 		gearHandlerCANTalon.setInverted(false);
 		gearHandlerCANTalon.enableControl();
 		
-		setToPosistion(GearHandlerPositions.DOWN_POS);
+//		setToPosistion(GearHandlerPositions.DOWN_POS);
 	}
 	
 	/*
 	 * Method to set the position of where the CANTalon needs to go
 	 * this takes in a Gear Handler position
-	 * this will take the passed in position and assign the field toPosition to the
+	 * this will take the passed in position and assign the field toPosition to the 
 	 * corresponding value
 	 */
 	public void setToPosistion(GearHandlerPositions pos){
 		if(pos == GearHandlerPositions.UPPER_POS){
-			toPosition = 260;//460;
+			toPosition = 250;//460;
 		}
 		else if(pos == GearHandlerPositions.MIDDLE_POS){
-			toPosition = 430;//460;
+			toPosition = 408;//460;
 		}
 		else if(pos == GearHandlerPositions.DOWN_POS){
-			toPosition = 480;//450
+			toPosition = 465;//450
 		}
-		gearHandlerCANTalon.set(toPosition);
+		
+		if(toPosition != 0)
+			gearHandlerCANTalon.set(toPosition);
 	}
 	
 	/*

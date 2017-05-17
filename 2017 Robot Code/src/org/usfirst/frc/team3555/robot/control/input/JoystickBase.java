@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 /*
  * Class From 2016 Robot Code
  * This abstract class is used to standardize the different types of joysticks that could be made
- * For example the LinearJoystick and LogarithmicJoystick
+ * For example the LinearJoystick and LogarithmicJoystick 
  */
 public abstract class JoystickBase {
 	private Joystick joystick;

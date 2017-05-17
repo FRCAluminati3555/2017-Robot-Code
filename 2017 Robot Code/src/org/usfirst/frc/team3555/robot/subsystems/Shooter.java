@@ -17,7 +17,7 @@ public class Shooter implements SubSystem{
 	 * The CANTalon used for the shooter
 	 * JoyOP is the operator joystick
 	 */
-	private CANTalon shooterCANTalon;
+	private CANTalon shooterCANTalon; 
 	private LinearJoystick joyOP;
 	
 	/*

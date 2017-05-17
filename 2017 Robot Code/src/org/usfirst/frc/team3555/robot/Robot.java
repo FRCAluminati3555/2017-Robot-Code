@@ -6,8 +6,6 @@
 
 package org.usfirst.frc.team3555.robot;
 
-import org.usfirst.frc.team3555.robot.subsystems.GearHandler.GearHandlerPositions;
-
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -47,16 +45,20 @@ public class Robot extends SampleRobot {
 //		autoChooser.addObject("Turn Left Gear Auto", new TurnLeftGearAutonomous());
 	}
 	
-	/*
-	 * The autonomous 
-	 */
 	public void autonomous(){
 //		Autonomous auto = (Autonomous) autoChooser.getSelected();
 //		auto.start();
 //		engine.getGearHandler().setToPosistion(GearHandlerPositions.UPPER_POS);
 //		Timer.delay(.25);
-//		engine.getDrive().autoDrive(.52, -.5, 3.75);
-		engine.getDrive().driveForRevs(1000, 1000);
+		engine.getDrive().driveForRevs(5, 5);
+//		engine.getDrive().driveForRevs(1000, 1000);
+//		
+//		engine.getDrive().getLeft1().reset();
+//		engine.getDrive().getRight1().reset();
+//		engine.getDrive().getLeft1().changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+//		engine.getDrive().getRight1().changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+//		engine.getDrive().getLeft1().enableControl();
+//		engine.getDrive().getRight1().enableControl();
 	}
 	
 	public void operatorControl() {
@@ -67,6 +69,7 @@ public class Robot extends SampleRobot {
 			 */
 			engine.getDrive().update();
 			engine.getGearHandler().update();
+			engine.getCameraSwtich().update();
 			engine.getShooter().update();
 			engine.getClimber().update();
 			engine.getLoader().update();

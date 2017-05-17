@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Loader implements SubSystem{
 	/*
-	 * field for the components that will control the loader
+	 * field for the components that will control the loader 
 	 */
 	private Talon loaderTalon;
 	private LinearJoystick joyOP;

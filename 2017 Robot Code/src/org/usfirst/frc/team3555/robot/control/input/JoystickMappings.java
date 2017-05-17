@@ -3,9 +3,9 @@ package org.usfirst.frc.team3555.robot.control.input;
 /*
  * Class From 2016 Robot Code 
  * This class in essence makes the other code more readable
- * This is because instead of saying joystick.getRawButton()
+ * This is because instead of saying joystick get RawButton
  * The buttons are accessed through an enum that describes the button's location
- * Rather than just it's number
+ * Rather than just it's number    
  */
 public class JoystickMappings {
 	public static interface Axis { public int getIndex(); }

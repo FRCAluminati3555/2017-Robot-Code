@@ -5,7 +5,7 @@ import org.usfirst.frc.team3555.robot.control.input.JoystickMappings.Axis;
 /*
  * Class From 2016 Robot Code
  * Joystick that controls with a logarithmic function rather than linear
- * Good for precision control, and makes robot control much better and smoother
+ * Good for precision control, and makes robot control much better and smoother 
  */
 public class ExponentialJoystick extends JoystickBase {
 	public ExponentialJoystick(int inputIndex, double deadzone) {
