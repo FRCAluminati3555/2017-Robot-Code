@@ -70,9 +70,9 @@ public class Robot extends SampleRobot {
 			engine.getDrive().update();
 			engine.getGearHandler().update();
 			engine.getCameraSwtich().update();
-			engine.getShooter().update();
+//			engine.getShooter().update();
 			engine.getClimber().update();
-			engine.getLoader().update();
+//			engine.getLoader().update();
 			
 			Timer.delay(0.005);
 		}

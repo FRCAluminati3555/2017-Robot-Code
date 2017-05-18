@@ -57,13 +57,13 @@ public class GearHandler implements SubSystem{
 	 */
 	public void setToPosistion(GearHandlerPositions pos){
 		if(pos == GearHandlerPositions.UPPER_POS){
-			toPosition = 250;//460;
+			toPosition = 260;//460;
 		}
 		else if(pos == GearHandlerPositions.MIDDLE_POS){
-			toPosition = 408;//460;
+			toPosition = 410;//460;
 		}
 		else if(pos == GearHandlerPositions.DOWN_POS){
-			toPosition = 465;//450
+			toPosition = 470;//450
 		}
 		
 		if(toPosition != 0)
@@ -88,7 +88,8 @@ public class GearHandler implements SubSystem{
 			setToPosistion(GearHandlerPositions.DOWN_POS);
 			SmartDashboard.putString("Gear Handler Position: ", "Down");
 		}
-		gearHandlerCANTalon.set(toPosition);
+		if(toPosition > 200)
+			gearHandlerCANTalon.set(toPosition);
 		
 		SmartDashboard.putNumber("Gear Handler Pot Pos: ", gearHandlerCANTalon.getPosition());
 		

@@ -487,12 +487,17 @@ public class DriveTrain implements SubSystem{
 	    	if(Math.abs(joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y)) >= deadzone){
 	    		rightSpeed = -joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
 	    	}
+
 	    	
-	    	/*
-	    	 * see above
-	    	 */
-	    	left1.set((encoderDrive) ? leftSpeed * maxRPM * invertedDrive: leftSpeed * invertedDrive); // TODO, get the top speed of the motors on the drive train
-	    	right1.set((encoderDrive) ? rightSpeed * maxRPM * invertedDrive: rightSpeed * invertedDrive);
+	    	if(invertedDrive == -1){
+	    		left1.set(-leftSpeed);
+	    		right1.set(-rightSpeed);
+	    	}
+	    	else{
+	    		left1.set(-rightSpeed);
+	    		right1.set(-leftSpeed);
+	    	}
+	    	
 	    	left2.set(left1.getDeviceID());
 	    	right2.set(right1.getDeviceID());
 		}
@@ -502,4 +507,12 @@ public class DriveTrain implements SubSystem{
 	public CANTalon getLeft2(){return left2;}
 	public CANTalon getRight1(){return right1;}
 	public CANTalon getRight2(){return right2;}
+	
+	/*
+	 * Sets the value of the inversion
+	 * Only 1 or -1
+	 */
+	public void setInversion(int val){
+		invertedDrive = val;
+	}
 }
