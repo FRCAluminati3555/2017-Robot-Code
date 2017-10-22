@@ -1,6 +1,6 @@
-package org.usfirst.frc.team3555.robot.control.input;
+package org.usfirst.frc.team3555.robot.Input;
 
-import org.usfirst.frc.team3555.robot.control.input.JoystickMappings.Axis;
+import org.usfirst.frc.team3555.robot.Input.JoystickMappings.Axis;
 
 /*
  * Class From 2016 Robot Code

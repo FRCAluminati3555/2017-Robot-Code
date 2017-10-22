@@ -1,4 +1,4 @@
-package org.usfirst.frc.team3555.robot.vision;
+package org.usfirst.frc.team3555.robot.Vision;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSink;

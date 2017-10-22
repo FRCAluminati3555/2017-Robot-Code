@@ -1,4 +1,4 @@
-package org.usfirst.frc.team3555.robot.control.input;
+package org.usfirst.frc.team3555.robot.Input;
 
 /*
  * Class From 2016 Robot Code 

@@ -1,10 +1,10 @@
-package org.usfirst.frc.team3555.robot.control.input;
+package org.usfirst.frc.team3555.robot.Input;
 
-import org.usfirst.frc.team3555.robot.control.input.JoystickMappings.Axis;
+import org.usfirst.frc.team3555.robot.Input.JoystickMappings.Axis;
 
 /*
  * Class From 2016 Robot Code
- * Joystick that controls with a logarithmic function rather than linear
+ * Joystick that controls with an exponential function rather than linear
  * Good for precision control, and makes robot control much better and smoother 
  */
 public class ExponentialJoystick extends JoystickBase {
