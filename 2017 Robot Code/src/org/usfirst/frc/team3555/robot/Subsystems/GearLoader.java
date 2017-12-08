@@ -29,7 +29,7 @@ public class GearLoader implements SubSystem {
 	@Override
 	public void update() {
 		if(joyOP.isButtonPressed(JoystickMappings.LogitechExtreme3D_Button.Top_Lower_Right)) 
-			loaderTalon.set(joyOP.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y) / 10.0);
+			loaderTalon.set(joyOP.getValue(JoystickMappings.LogitechExtreme3D_Axis.Y));
 		else 
 			loaderTalon.set(0);
 		

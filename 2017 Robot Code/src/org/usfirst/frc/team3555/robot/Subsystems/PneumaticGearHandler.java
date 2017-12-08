@@ -5,6 +5,7 @@ import org.usfirst.frc.team3555.robot.Input.LinearJoystick;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PneumaticGearHandler implements SubSystem {
 	private LinearJoystick joyOP;
@@ -25,7 +26,7 @@ public class PneumaticGearHandler implements SubSystem {
 	
 	@Override
 	public void update() {
-		
+		SmartDashboard.putBoolean("Pressure Switch Value: ", compressor.getPressureSwitchValue());
 		
 		if(joyOP.isButtonPressed(JoystickMappings.LogitechExtreme3D_Button.Bottom_Lower_Front) && !buttonPressed) {
 			buttonPressed = true;
