@@ -137,6 +137,49 @@ public class DriveTrain implements SubSystem{
 		SmartDashboard.putNumber("RR, 44 Current: ", rightFront.getOutputCurrent());
 	}
 	
+	//***************************** DRIVE MODES ***********************************//
+	
+	/**
+	 * Interprets joystick position to drive the motor controllers in the arcade fashion
+	 * This the joyStickRight is the main joystick used for arcade drive
+	 */
+	public void arcadeDrive() {
+		double leftSpeed = 0;
+    	double rightSpeed = 0;
+    	
+		leftSpeed = (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
+		rightSpeed = (-joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
+    	
+    	leftRear.set(leftSpeed * invertedDrive);
+    	rightRear.set(rightSpeed * invertedDrive);
+    	leftFront.set(leftRear.getDeviceID());
+    	rightFront.set(rightRear.getDeviceID());
+	}
+	
+	/**
+	 * Interprets the position of both joysticks to drive the robot in a tank formation
+	 */
+	public void tankDrive() {
+		double leftSpeed = 0;
+    	double rightSpeed = 0;
+    	
+    	leftSpeed = joyStickLeft.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
+		rightSpeed = -joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
+    	
+    	if(invertedDrive == -1) {
+    		leftRear.set(-leftSpeed);
+    		rightRear.set(-rightSpeed);
+    	} else {
+    		leftRear.set(-rightSpeed);
+    		rightRear.set(-leftSpeed);
+    	}
+    	
+    	leftFront.set(leftRear.getDeviceID());
+    	rightFront.set(rightRear.getDeviceID());
+    }
+	
+	//***************************** Actions ***********************************//
+	
 	/**
 	 * 
 	 * Drive the robot at certain rpm on each side for a certain amount of seconds
@@ -269,39 +312,6 @@ public class DriveTrain implements SubSystem{
 	 * @param seconds
 	 */
 	public void driveRotations(double rotations, double seconds) { drive(wheelCircumference * rotations, wheelCircumference * rotations, seconds); }
-	
-	public void arcadeDrive() {
-		double leftSpeed = 0;
-    	double rightSpeed = 0;
-    	
-		leftSpeed = (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
-		rightSpeed = (-joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) + (joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.X) * invertedDrive)) * scaleFactor;
-    	
-    	leftRear.set(leftSpeed * invertedDrive);
-    	rightRear.set(rightSpeed * invertedDrive);
-    	leftFront.set(leftRear.getDeviceID());
-    	rightFront.set(rightRear.getDeviceID());
-	}
-	
-	public void tankDrive() {
-		double leftSpeed = 0;
-    	double rightSpeed = 0;
-    	
-    	leftSpeed = joyStickLeft.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
-		rightSpeed = -joyStickRight.getValue(JoystickMappings.LogitechAttack3_Axis.Y) * scaleFactor;
-    	
-    	if(invertedDrive == -1) {
-    		leftRear.set(-leftSpeed);
-    		rightRear.set(-rightSpeed);
-    	} else {
-    		leftRear.set(-rightSpeed);
-    		rightRear.set(-leftSpeed);
-    	}
-    	
-    	leftFront.set(leftRear.getDeviceID());
-    	rightFront.set(rightRear.getDeviceID());
-    }
-	
 	
 	/*********************************** Set Left PIDF ********************************/
 	public void setLeftVelocityPID(double leftVelP, double leftVelI, double leftVelD) {

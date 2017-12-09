@@ -1,5 +1,9 @@
 package org.usfirst.frc.team3555.robot.Autonomous;
 
+import org.usfirst.frc.team3555.robot.Autonomous.InnerTypes.ActionCleanUp;
+import org.usfirst.frc.team3555.robot.Autonomous.InnerTypes.ActionStart;
+import org.usfirst.frc.team3555.robot.Autonomous.InnerTypes.ActionUpdate;
+
 /**
  * This class will store an action for the robot to complete during autonomous. 
  * Actions can be a simple singular action that will be completed, or an action can be given a set of other actions that can be executed simultaneously.
@@ -9,7 +13,9 @@ package org.usfirst.frc.team3555.robot.Autonomous;
  * @author Sam S.
  */
 public class Action {
+	private ActionStart actionStart;
 	private ActionUpdate actionUpdate;
+	private ActionCleanUp actionCleanUp;
 	
 	private Action[] actions;
 	private boolean simultaneous;
@@ -21,8 +27,10 @@ public class Action {
 	 * 
 	 * @param actionUpdate - Inner type that will be executed to perform an action
 	 */
-	public Action(ActionUpdate actionUpdate) {
+	public Action(ActionStart actionStart, ActionUpdate actionUpdate, ActionCleanUp actionCleanUp) {
+		this.actionStart = actionStart;
 		this.actionUpdate = actionUpdate;
+		this.actionCleanUp = actionCleanUp;
 	}
 	
 	/**
@@ -34,6 +42,11 @@ public class Action {
 	public Action(boolean simultaneous, Action... actions) {
 		this.actions = actions;
 		this.simultaneous = simultaneous;
+	}
+	
+	public void start() {
+		if(actionStart != null) 
+			actionStart.start();
 	}
 	
 	/**
@@ -71,6 +84,15 @@ public class Action {
 			}
 		}
 		return complete;
+	}
+	
+	/**
+	 * Cleans up the action -> Sets any motors to 0, change their modes etc...
+	 * Only called once when they finish
+	 */
+	public void cleanUp() {
+		if(actionCleanUp != null)
+			actionCleanUp.cleanUp();
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package org.usfirst.frc.team3555.robot.Autonomous;
+package org.usfirst.frc.team3555.robot.Autonomous.InnerTypes;
 
 @FunctionalInterface
 public interface ActionUpdate {
