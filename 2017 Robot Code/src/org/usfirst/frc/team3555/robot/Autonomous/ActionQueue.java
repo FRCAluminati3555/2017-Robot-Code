@@ -12,19 +12,30 @@ import java.util.ArrayDeque;
 public class ActionQueue {
 	private ArrayDeque<Action> queue;
 	
+	/**
+	 * Creates a new Action Queue.
+	 */
 	public ActionQueue() {
 		queue = new ArrayDeque<>();
 	}
 	
 	/**
-	 * Updates the first action, and will remove it from the queue if it is complete, and will move to the next action
+	 * Updates the first Action.
+	 * If this Action hasn't been started, then it will call its start method.
+	 * If this Action is complete then it will be removed from the list and its clean up method will be called
+	 * 
 	 * @see Action
 	 */
 	public void update() {
 		Action currentAction = queue.peek();
 		
-		if(currentAction != null && currentAction.update()) 
-			queue.remove();
+		if(currentAction != null) {
+			if(!currentAction.isStarted())//Check if this has already started
+				currentAction.start();
+			
+			if(currentAction.update())//Update the action
+				remove();
+		}
 	}
 	
 	/**
@@ -35,4 +46,12 @@ public class ActionQueue {
 	 * @param a - Action to be added
 	 */
 	public void add(Action a) { queue.addLast(a); }
+
+	/**
+	 * This will remove the first action, and call its clean up method
+	 */
+	public void remove() {
+		Action a = queue.pop();
+		a.cleanUp();
+	}
 }

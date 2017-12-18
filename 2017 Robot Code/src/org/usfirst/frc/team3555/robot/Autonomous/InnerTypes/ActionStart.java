@@ -2,5 +2,5 @@ package org.usfirst.frc.team3555.robot.Autonomous.InnerTypes;
 
 @FunctionalInterface
 public interface ActionStart {
-	public abstract boolean start();
+	public abstract void start();
 }

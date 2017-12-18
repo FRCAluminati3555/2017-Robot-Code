@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3555.robot;
 
+import org.usfirst.frc.team3555.robot.Autonomous.ActionQueue;
+
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -27,6 +29,11 @@ public class Robot extends SampleRobot {
 	private Engine engine;
 	
 	/**
+	 * Queue system to line up actions to be performed during autonomous
+	 */
+	private ActionQueue actionQueue;
+	
+	/**
 	 * Constructs an object of the {@code Robot} class. <br>
 	 * Initializes the {@code Engine} object.
 	 * 
@@ -34,11 +41,12 @@ public class Robot extends SampleRobot {
 	 */
 	public Robot() {
 		engine = new Engine();
+		actionQueue = new ActionQueue();
 	}
 	
 	/** Drives the robot autonomously */
 	public void autonomous() {
-		engine.getDrive().autoDrive(100, 100, 6);
+//		engine.getDrive().autoDrive(100, 100, 6);
 	}
 	
 	/** Updates all the sub systems */

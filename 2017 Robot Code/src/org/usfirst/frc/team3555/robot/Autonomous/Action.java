@@ -20,12 +20,16 @@ public class Action {
 	private Action[] actions;
 	private boolean simultaneous;
 	
+	private long startTime;
+	private boolean started;
 	private boolean complete;
 	
 	/**
 	 * Denotes a single action that will execute the actionUpdate code to make the robot do something
 	 * 
+	 * @param actionStart - Inner type that will be executed to start an action
 	 * @param actionUpdate - Inner type that will be executed to perform an action
+	 * @param actionCleanUp - Inner type that will be executed to end an action
 	 */
 	public Action(ActionStart actionStart, ActionUpdate actionUpdate, ActionCleanUp actionCleanUp) {
 		this.actionStart = actionStart;
@@ -44,9 +48,19 @@ public class Action {
 		this.simultaneous = simultaneous;
 	}
 	
+	/**
+	 * Calls this action's start inner type
+	 * This will automatically set the start time to the current time, and the started state will now be true. 
+	 * NOTE: This will not run if this has already been started (i.e. the started state is already true)
+	 */
 	public void start() {
-		if(actionStart != null) 
-			actionStart.start();
+		if(!started) {
+			startTime = System.currentTimeMillis();
+			started = true;
+			
+			if(actionStart != null) 
+				actionStart.start(); 
+		}
 	}
 	
 	/**
@@ -80,7 +94,7 @@ public class Action {
 					complete = actions[actions.length - 1].isComplete();//Check to see if all the actions are done, since this is done 1 by 1 then if the last is done, then they are all done
 				}
 			} else {//Singular action, just check the update method inner type
-				complete = actionUpdate.update();
+				complete = actionUpdate.update(startTime);
 			}
 		}
 		return complete;
@@ -101,9 +115,23 @@ public class Action {
 	 * @return - The state that this action is in, ongoing or complete
 	 */
 	public boolean isComplete() { return complete; }
+
+	/**
+	 * Checks if this action has started
+	 * 
+	 * @return - Whether or not this action has started
+	 */
+	public boolean isStarted() { return started; }
 	
 	/**
 	 * This will stop this action by stating that it is complete, and therefore will be taken out by its action queue when it gets priority
 	 */
 	public void interupt() { complete = true; }
+	
+	/**
+	 * Checks the time that this action started at
+	 * 
+	 * @return - The time that this action started at
+	 */
+	public long getStartTime() { return startTime; }
 }

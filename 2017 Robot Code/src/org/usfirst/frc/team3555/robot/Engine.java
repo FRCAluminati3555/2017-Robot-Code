@@ -83,11 +83,11 @@ public class Engine {
 	}
 
 	/** Getters to the sub system objects */
-	public DriveTrain getDrive(){return drive;}
-//	public PneumaticGearHandler getPneumaticGearHandler() { return pneummaticGearHandler; }
+	public DriveTrain getDrive() { return drive ;}
+	public PneumaticGearHandler getPneumaticGearHandler() { return pneummaticGearHandler; }
 //	public GearHandler getGearHandler(){return gearHandler;}
 //	public BallLoader getLoader(){return ballLoader;}
 	public GearLoader getGearLoader() { return gearLoader; }
 //	public CameraSwitch getCameraSwtich(){return cameraSwtich;}
-	public Climber getClimber(){return climber;}
+	public Climber getClimber() { return climber; }
 }

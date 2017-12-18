@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3555.robot.Input;
 
+import java.util.Arrays;
+
 import org.usfirst.frc.team3555.robot.Input.JoystickMappings.Axis;
 import org.usfirst.frc.team3555.robot.Input.JoystickMappings.Button;
 
@@ -14,7 +16,7 @@ public abstract class JoystickBase {
 	private Joystick joystick;
 	private double deadzone;
 	
-	private boolean[] buttons, justPressed, cantPress;
+	private boolean[] buttons, buttonsLastFrame, justPressed, justReleased;
 	
 	public JoystickBase(int inputIndex, double deadzone) {
 		joystick = new Joystick(inputIndex);
@@ -22,7 +24,7 @@ public abstract class JoystickBase {
 		
 		buttons = new boolean[joystick.getButtonCount()];
 		justPressed = new boolean[buttons.length];
-		cantPress = new boolean[buttons.length];
+		justReleased = new boolean[buttons.length];
 	}
 	
 	public abstract double getValue(Axis axis);
@@ -33,21 +35,26 @@ public abstract class JoystickBase {
 	 * Must be called every iteration throughout the operator control to keep up to date with real time
 	 */
 	public final void updateButtons() {
-		for(int i = 0; i < buttons.length; i++) 
-			buttons[i] = joystick.getRawButton(i+1);
-		
-		for(int i = 0;i < buttons.length; i++) {
-			if(cantPress[i] && !buttons[i]) {
-				cantPress[i] = false;
-			} else if(justPressed[i]) {
-				cantPress[i] = true;
+		for(int i = 0; i < justReleased.length; i++) {
+			if(justReleased[i])
+				justReleased[i] = false;
+			if(justPressed[i])
 				justPressed[i] = false;
-			}
+		}
+		
+		for(int i = 0; i < buttons.length; i++) {
+			buttons[i] = joystick.getRawButton(i+1);
 			
-			if(!cantPress[i] && buttons[i]) {
-				justPressed[i] = true;
+			if(buttonsLastFrame != null) {
+				if(buttonsLastFrame[i] == true && buttons[i] == false) {
+					justReleased[i] = true;
+				} else if(buttonsLastFrame[i] == false && buttons[i] == true) {
+					justPressed[i] = false;
+				}
 			}
 		}
+
+		buttonsLastFrame = Arrays.copyOf(buttons, buttons.length);
 	}
 	
 	public final double getRawValue(Axis axis) { 
@@ -59,10 +66,14 @@ public abstract class JoystickBase {
 		return joystick.getRawButton(button.getIndex());
 	}
 	
-	public boolean wasButtonJustReleased(Button button) {
+	public boolean isButtonJustPressed(Button button) {
 		return justPressed[button.getIndex()];
 	}
 
+	public boolean isButtonJustReleased(Button button) {
+		return justReleased[button.getIndex()];
+	}
+	
 	public boolean isPOVPressed(int angle) { return joystick.getPOV() == angle; }
 	public int getPOV() { return joystick.getPOV(); }
 	public Joystick getJoystick() { return joystick; }
