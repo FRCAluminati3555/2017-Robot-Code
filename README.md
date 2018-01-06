@@ -1,2 +1,4 @@
 # 2017-Robot-Code
-FRC Competition 2017
+
+This was the code used for 2017
+This is now closed for the year.
